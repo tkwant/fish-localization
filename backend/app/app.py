@@ -4,6 +4,7 @@ from flask_cors import CORS
 from bson.objectid import ObjectId
 from werkzeug.utils import secure_filename
 from datetime import datetime
+import os
 app = Flask(__name__)
 CORS(app)
 
@@ -12,7 +13,7 @@ mydb = myclient["fish_count"]
 mycol = mydb["items"]
 mydict = {"original_video_path": "John", "address": "Highway 37"}
 
-
+os.makedirs(os.path.dirname('static/original_videos'), exist_ok=True)
 
 @app.route('/', methods=['GET'])
 def get():

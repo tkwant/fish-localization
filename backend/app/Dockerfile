@@ -35,15 +35,16 @@ RUN pip install --no-cache-dir pandas==1.0.1
 RUN pip install --no-cache-dir scikit-learn==0.22.1
 RUN pip install --no-cache-dir haven-ai
 RUN pip install --no-cache-dir opencv-python==4.2.0.32
-RUN pip install --no-cache-dir pymongo
+RUN pip install --no-cache-dir pymongocd
+
 RUN pip install --no-cache-dir flask
 RUN pip install --no-cache-dir pytest
 RUN pip install --no-cache-dir pytest-cov
 RUN pip install --no-cache-dir codecov
 RUN pip install --no-cache-dir flask-cors
-RUN mkdir -p /workspace/flask
+RUN mkdir -p /workspace/backend
 WORKDIR /workspace
-COPY . /workspace/flask
-CMD ["python","-u", "flask/app.py"]
+COPY ../ /workspace/backend
+CMD ["python","-u", "backend/app/app.py"]
 
 

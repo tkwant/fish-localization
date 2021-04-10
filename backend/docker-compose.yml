@@ -11,8 +11,8 @@ services:
             - capabilities:
               - gpu
     volumes:
-      - ./app:/usr/src/app
-      - .:/user/src
+      - ./app:/workspace/backend/app
+      # - .:/user/src
     ports:
       - 80:9999
     environment:
@@ -31,5 +31,5 @@ services:
     ports:
         - 27017:27017
     volumes:
-      - ../../fish_counter_data/mongo_data:/data/db
+      - ../../fish-counting-data/mongo_data:/data/db
     command: --quiet
