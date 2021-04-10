@@ -29,7 +29,7 @@ services:
       # MONGO_INITDB_ROOT_USERNAME: deep_fish
       # MONGO_INITDB_ROOT_PASSWORD: barscht123
     ports:
-        - 27017:27017
+        - 127.0.0.1:27017:27017
     volumes:
       - ../../fish-counting-data/mongo_data:/data/db
     command: --quiet

@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 import pymongo
 from flask_cors import CORS
 from bson.objectid import ObjectId
@@ -13,7 +13,12 @@ mydb = myclient["fish_count"]
 mycol = mydb["items"]
 mydict = {"original_video_path": "John", "address": "Highway 37"}
 
-os.makedirs(os.path.dirname('static/original_videos'), exist_ok=True)
+app_path = 'backend/app/'
+
+o_videos_dir = app_path + 'static/original_videos/'
+if not os.path.exists(o_videos_dir):
+    os.makedirs(o_videos_dir)
+
 
 @app.route('/', methods=['GET'])
 def get():
@@ -24,16 +29,23 @@ def get():
 
 
 @app.route('/items', methods=['GET'])
-def videos():
+def get_videos():
     items = list(mycol.find({}))
     return jsonify(items)
 
+@app.route('/delete/<videoId>', methods=['DELETE'])
+def delete_video(videoId):
+    res = mycol.delete_one({'_id': videoId})
+    if res.deleted_count > 0:
+        return make_response(jsonify({}), 204)
+    return make_response("Unable to delete", 400)
+
 @app.route('/upload', methods=["POST"])
-def upload():
+def upload_video():
     uploaded_file = request.files['video']
     if uploaded_file.filename != '':
         obj_id = str(ObjectId())
-        original_video_path = "static/original_videos/" + obj_id + "." + uploaded_file.filename.split('.')[-1]
+        original_video_path = o_videos_dir + obj_id + "." + uploaded_file.filename.split('.')[-1]
         x = mycol.insert_one({
             "_id": obj_id,
             "name": uploaded_file.filename,

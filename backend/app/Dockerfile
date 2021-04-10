@@ -42,9 +42,9 @@ RUN pip install --no-cache-dir pytest
 RUN pip install --no-cache-dir pytest-cov
 RUN pip install --no-cache-dir codecov
 RUN pip install --no-cache-dir flask-cors
-RUN mkdir -p /workspace/backend
+RUN mkdir -p /workspace/backend/app
 WORKDIR /workspace
-COPY ../ /workspace/backend
+COPY ./ /workspace/backend/app
 CMD ["python","-u", "backend/app/app.py"]
 
 
