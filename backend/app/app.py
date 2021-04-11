@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, Response
 import pymongo
 from flask_cors import CORS
 from bson.objectid import ObjectId
@@ -13,9 +13,9 @@ mydb = myclient["fish_count"]
 mycol = mydb["items"]
 mydict = {"original_video_path": "John", "address": "Highway 37"}
 
-app_path = 'backend/app/'
+# app_path = 'backend/app/'
 
-o_videos_dir = app_path + 'static/original_videos/'
+o_videos_dir = 'static/original_videos/'
 if not os.path.exists(o_videos_dir):
     os.makedirs(o_videos_dir)
 
@@ -35,10 +35,13 @@ def get_videos():
 
 @app.route('/delete/<videoId>', methods=['DELETE'])
 def delete_video(videoId):
-    res = mycol.delete_one({'_id': videoId})
-    if res.deleted_count > 0:
+    res = mycol.find_one_and_delete({'_id': videoId})
+    if res:
+        # os.remove(res['original_video_path'])
+        print("removed: " + res['original_video_path'])
         return make_response(jsonify({}), 204)
-    return make_response("Unable to delete", 400)
+    else:
+        return make_response("Video Id not found in database", 400)
 
 @app.route('/upload', methods=["POST"])
 def upload_video():
@@ -55,15 +58,8 @@ def upload_video():
             "counts": None,
             "thumbnail_path": None
         })
-        # print("obj_id: "+ str(obj_id))
-        print("uploaded_file:" + str(uploaded_file.filename))
         uploaded_file.save(original_video_path)
-        # if "video" in request.files:
-        #     video = request.files["video"]
-        #     # filename = secure_filename(file.filename) # Secure the filename to prevent some kinds of attack
-        #     media.save(video, name="filename.mp4")
         return "success"
-            # Video saved
     return 'bad request!', 400
 
 
