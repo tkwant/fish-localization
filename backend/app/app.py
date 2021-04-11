@@ -61,7 +61,10 @@ def predict_video():
     # print(future.result())
     return make_response(jsonify({}), 204)
     
-
+@app.route('/predict_cancel', methods=["POST"])
+def cancel_prediciting():
+    executor.shutdown()
+    return make_response(jsonify({}), 204)
 
 @app.route('/upload', methods=["POST"])
 def upload_video():
