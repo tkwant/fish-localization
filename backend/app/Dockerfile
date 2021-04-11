@@ -6,7 +6,7 @@ ENV PATH="/root/miniconda3/bin:${PATH}"
 ARG PATH="/root/miniconda3/bin:${PATH}"
 RUN apt-get update
 
-RUN apt-get update && apt-get install -y --no-install-recommends wget bzip2 python3.5 python3-pip python3-setuptools python3-dev libmysqlclient-dev build-essential libigraph0-dev netcat nano htop libsm6 libxext6 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends git wget bzip2 python3.5 python3-pip python3-setuptools python3-dev libmysqlclient-dev build-essential libigraph0-dev netcat nano htop libsm6 libxext6 && rm -rf /var/lib/apt/lists/*
 # Install Backend Dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends wget curl bzip2 python3.5 \
     python3-pip python3-setuptools python3-dev build-essential libigraph0-dev netcat nano \
@@ -35,16 +35,18 @@ RUN pip install --no-cache-dir pandas==1.0.1
 RUN pip install --no-cache-dir scikit-learn==0.22.1
 RUN pip install --no-cache-dir haven-ai
 RUN pip install --no-cache-dir opencv-python==4.2.0.32
-RUN pip install --no-cache-dir pymongocd
-
+RUN pip install --no-cache-dir pymongo
 RUN pip install --no-cache-dir flask
 RUN pip install --no-cache-dir pytest
 RUN pip install --no-cache-dir pytest-cov
 RUN pip install --no-cache-dir codecov
 RUN pip install --no-cache-dir flask-cors
-RUN mkdir -p /workspace/backend/app
+RUN pip install --no-cache-dir numba
+RUN pip install --no-cache-dir git+https://github.com/ElementAI/LCFCN
+
+# RUN mkdir -p /workspace/backend/app
 WORKDIR /workspace
-COPY ./ /workspace/backend/app
-CMD ["python","-u", "backend/app/app.py"]
+COPY ./ /workspace
+CMD ["python","-u", "app.py"]
 
 

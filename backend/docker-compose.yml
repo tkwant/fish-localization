@@ -11,7 +11,7 @@ services:
             - capabilities:
               - gpu
     volumes:
-      - ./app:/workspace/backend/app
+      - ./app:/workspace
       # - .:/user/src
     ports:
       - 80:9999
