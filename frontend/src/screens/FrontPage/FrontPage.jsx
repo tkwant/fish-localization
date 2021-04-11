@@ -4,7 +4,8 @@ import VideoList from './VideoList'
 import { useBoolean } from 'react-use'
 const FrontPage = () => {
     const [newVideoUploadedToggler, setNewVideoUploadedToggler] = useBoolean(false)
-
+    console.log('newVideoUploadedToggler')
+    console.log(newVideoUploadedToggler)
     return (
         <>
             <main class="flex-1 overflow-y-auto bg-gray-200 flex-grow">

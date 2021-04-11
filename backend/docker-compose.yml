@@ -12,7 +12,7 @@ services:
               - gpu
     volumes:
       - ./app:/workspace
-      - .:/user/src
+      # - .:/user/src
     ports:
       - 80:9999
     environment:

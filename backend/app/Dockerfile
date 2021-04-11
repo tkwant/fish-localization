@@ -35,7 +35,8 @@ RUN pip install --no-cache-dir pandas==1.0.1
 RUN pip install --no-cache-dir scikit-learn==0.22.1
 RUN pip install --no-cache-dir haven-ai
 RUN pip install --no-cache-dir opencv-python==4.2.0.32
-RUN pip install --no-cache-dir pymongo
+RUN pip install --no-cache-dir pymongocd
+
 RUN pip install --no-cache-dir flask
 RUN pip install --no-cache-dir pytest
 RUN pip install --no-cache-dir pytest-cov
