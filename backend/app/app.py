@@ -5,11 +5,15 @@ from bson.objectid import ObjectId
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import thread
+import queue
+
 from DeepFish.predict import trainval
 import os
 import time
+q = queue.Queue()
 
-executor = ThreadPoolExecutor(1)
+executor = ThreadPoolExecutor(max_workers=1)
 
 app = Flask(__name__)
 CORS(app)
@@ -50,11 +54,26 @@ def delete_video(videoId):
         return make_response("Video Id not found in database", 400)
 
 
+result = None
+
+def checkUploadCanceled():
+    # if not q.empty():
+    try: 
+        q.get(False)
+        return True
+    except queue.Empty:
+        return False
+    return False
+
+def onProgressUpload(progress):
+    print(f"progress ${progress}")
+
 @app.route('/predict', methods=["POST"])
 def predict_video():
     print(f"preditct infos: {request.form}")
     try:
-        result = executor.submit(trainval)
+        result = executor.submit(trainval, checkUploadCanceled, onProgressUpload)
+        print(dir(result))
         print(result)
     except Exception as e:
         return make_response(str(e), 400)
@@ -63,7 +82,14 @@ def predict_video():
     
 @app.route('/predict_cancel', methods=["POST"])
 def cancel_prediciting():
-    executor.shutdown()
+    q.put(True)
+    # executor.shutdown(wait=False)
+    # executor._threads.clear()
+    # thread._threads_queues.clear()
+    # executor.shutdown(cancel_futures=True)
+    # thread_executor.shutdown(wait=False)
+    # for t in thread_executor._threads:
+    #     terminate_thread(t)
     return make_response(jsonify({}), 204)
 
 @app.route('/upload', methods=["POST"])
