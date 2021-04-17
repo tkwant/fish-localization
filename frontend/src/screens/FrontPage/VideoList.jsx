@@ -3,10 +3,7 @@ import { Button } from "@chakra-ui/react"
 import { useHistory } from 'react-router-dom'
 import useVideos from '../../hooks/useVideos'
 import useDeleteVideo from '../../hooks/useDeleteVideo'
-import usePredictVideo from '../../hooks/usePredictVideo'
-import usePredictCancel from '../../hooks/usePredictCancel'
-import usePredictProgress from '../../hooks/usePredictProgress'
-import { useTimeout } from 'react-use'
+import VideoCard from './VideoCard'
 const DUMMY_CARDS = [
     {
         thumbnail: 'https://i.imgur.com/lhJIz7A.jpg',
@@ -40,12 +37,7 @@ const VideoList = ({ newVideoUploadedToggler }) => {
             data: videos,
             refetch: refetchVideos
         } = useVideos()
-    const
-        {
-            mutate: getPredictProgress,
-            data: predictProgress,
-            isSuccess: getPredictProgressIsSuccess
-        } = usePredictProgress()
+
     const
         {
             mutate: deleteVideo,
@@ -55,24 +47,8 @@ const VideoList = ({ newVideoUploadedToggler }) => {
             reset: deleteVideoReset,
         } = useDeleteVideo()
 
-    const
-        {
-            mutate: predictVideo,
-            error: predictVideoError,
-            isLoading: predictVideoIsLoading,
-            isSuccess: predictVideoIsSuccess,
-            reset: predictVideoReset,
-        } = usePredictVideo()
-    const
-        {
-            mutate: predictCancel,
-            error: predictCancelError,
-            isLoading: predictCancelIsLoading,
-            isSuccess: predictCancelIsSuccess,
-            reset: predictCancelReset,
-        } = usePredictCancel()
 
-    const predictId = useRef()
+
     const showOriginal = (item) => {
         history.push(`/item/${item._id}`, item)
     }
@@ -82,21 +58,8 @@ const VideoList = ({ newVideoUploadedToggler }) => {
     }
 
 
-    useEffect(() => {
-        if (getPredictProgressIsSuccess) {
 
-            // getPredictProgress(predictId.current)
-        }
-    }, [getPredictProgressIsSuccess])
 
-    const predictVideoOnClick = (item) => {
-        predictVideo({ id: item._id })
-        predictId.current = item._id
-        getPredictProgress(predictId.current)
-    }
-    const predictCancelOnClick = (item) => {
-        predictCancel()
-    }
 
     useEffect(() => {
         refetchVideos()
@@ -133,38 +96,13 @@ const VideoList = ({ newVideoUploadedToggler }) => {
         return (
             <div class="flex flex-wrap overflow-hidden justify-center sm:justify-start ">
                 {videos.map(item => (
-                    <div className='m-2 w-300 m-2  bg-green-400 shadow' >
-                        <div class='flex justify-center w-full'>
-                            {item.name}</div>
-                        <img src={item.thumbnail}></img>
-                        <div class='flex justify-center w-full m-2'>
-                            <Button onClick={() => showOriginal(item)}>Show Original</Button>
-                        </div>
-                        {!item.item && (
-                            <>
-                                <div class='flex justify-center w-full m-2'>
-                                    <Button onClick={() => predictVideoOnClick(item)}>Predict Video</Button>
-                                </div>
-                                <div class='flex justify-center w-full m-2'>
-                                    <Button onClick={() => predictCancelOnClick(item)}>Cancel Predict Video</Button>
-                                </div>
-                            </>
-                        )}
-                        {item.predicted_video_path && (
-                            <div class='flex justify-center w-full m-2'>
-                                <Button>Show Predicted Video</Button>
-                            </div>
-                        )}
-                        <div class='flex justify-center w-full m-2'>
-                            <Button disabled={!item.predicted_video_path}>Export as CSV</Button>
-                        </div>
-                        <div class='flex justify-center w-full m-2'>
-                            <Button onClick={() => deleteVideoOnClick(item)}>Delete Video</Button>
-                        </div>
-                        <div>
-                            {item.timestamp.toLocaleString('de')}
-                        </div>
-                    </div>
+                    <VideoCard
+                        item={item}
+                        showOriginal={showOriginal}
+                        // predictVideoOnClick={predictVideoOnClick}
+                        // predictCancelOnClick={predictCancelOnClick}
+                        deleteVideoOnClick={deleteVideoOnClick}
+                    />
                 ))}
 
             </div>
