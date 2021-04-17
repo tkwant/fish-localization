@@ -1,9 +1,12 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Button } from "@chakra-ui/react"
 import { useHistory } from 'react-router-dom'
 import useVideos from '../../hooks/useVideos'
 import useDeleteVideo from '../../hooks/useDeleteVideo'
 import usePredictVideo from '../../hooks/usePredictVideo'
+import usePredictCancel from '../../hooks/usePredictCancel'
+import usePredictProgress from '../../hooks/usePredictProgress'
+import { useTimeout } from 'react-use'
 const DUMMY_CARDS = [
     {
         thumbnail: 'https://i.imgur.com/lhJIz7A.jpg',
@@ -39,6 +42,12 @@ const VideoList = ({ newVideoUploadedToggler }) => {
         } = useVideos()
     const
         {
+            mutate: getPredictProgress,
+            data: predictProgress,
+            isSuccess: getPredictProgressIsSuccess
+        } = usePredictProgress()
+    const
+        {
             mutate: deleteVideo,
             error: deleteVideoError,
             isLoading: deleteVideoIsLoading,
@@ -54,8 +63,16 @@ const VideoList = ({ newVideoUploadedToggler }) => {
             isSuccess: predictVideoIsSuccess,
             reset: predictVideoReset,
         } = usePredictVideo()
+    const
+        {
+            mutate: predictCancel,
+            error: predictCancelError,
+            isLoading: predictCancelIsLoading,
+            isSuccess: predictCancelIsSuccess,
+            reset: predictCancelReset,
+        } = usePredictCancel()
 
-
+    const predictId = useRef()
     const showOriginal = (item) => {
         history.push(`/item/${item._id}`, item)
     }
@@ -64,10 +81,22 @@ const VideoList = ({ newVideoUploadedToggler }) => {
         deleteVideo(item._id)
     }
 
+
+    useEffect(() => {
+        if (getPredictProgressIsSuccess) {
+
+            // getPredictProgress(predictId.current)
+        }
+    }, [getPredictProgressIsSuccess])
+
     const predictVideoOnClick = (item) => {
         predictVideo({ id: item._id })
+        predictId.current = item._id
+        getPredictProgress(predictId.current)
     }
-
+    const predictCancelOnClick = (item) => {
+        predictCancel()
+    }
 
     useEffect(() => {
         refetchVideos()
@@ -112,9 +141,14 @@ const VideoList = ({ newVideoUploadedToggler }) => {
                             <Button onClick={() => showOriginal(item)}>Show Original</Button>
                         </div>
                         {!item.item && (
-                            <div class='flex justify-center w-full m-2'>
-                                <Button onClick={() => predictVideoOnClick(item)}>Predict Video</Button>
-                            </div>
+                            <>
+                                <div class='flex justify-center w-full m-2'>
+                                    <Button onClick={() => predictVideoOnClick(item)}>Predict Video</Button>
+                                </div>
+                                <div class='flex justify-center w-full m-2'>
+                                    <Button onClick={() => predictCancelOnClick(item)}>Cancel Predict Video</Button>
+                                </div>
+                            </>
                         )}
                         {item.predicted_video_path && (
                             <div class='flex justify-center w-full m-2'>
