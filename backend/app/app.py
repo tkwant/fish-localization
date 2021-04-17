@@ -34,7 +34,9 @@ jobs = mydb["jobs"]
 # app_path = 'backend/app/'
 
 
-videos.update_many({}, {
+videos.update_many(
+    {"predict_progress": {"$lt": 1}}, 
+    {
         '$set': {
             'predict_progress': 0
         }})
