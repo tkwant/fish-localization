@@ -3,6 +3,7 @@ import { Button } from "@chakra-ui/react"
 import { useHistory } from 'react-router-dom'
 import useVideos from '../../hooks/useVideos'
 import useDeleteVideo from '../../hooks/useDeleteVideo'
+import usePredictVideo from '../../hooks/usePredictVideo'
 const DUMMY_CARDS = [
     {
         thumbnail: 'https://i.imgur.com/lhJIz7A.jpg',
@@ -45,6 +46,16 @@ const VideoList = ({ newVideoUploadedToggler }) => {
             reset: deleteVideoReset,
         } = useDeleteVideo()
 
+    const
+        {
+            mutate: predictVideo,
+            error: predictVideoError,
+            isLoading: predictVideoIsLoading,
+            isSuccess: predictVideoIsSuccess,
+            reset: predictVideoReset,
+        } = usePredictVideo()
+
+
     const showOriginal = (item) => {
         history.push(`/item/${item._id}`, item)
     }
@@ -52,8 +63,12 @@ const VideoList = ({ newVideoUploadedToggler }) => {
     const deleteVideoOnClick = (item) => {
         deleteVideo(item._id)
     }
-    console.log('deleteVideoIsSuccess')
-    console.log(deleteVideoIsSuccess)
+
+    const predictVideoOnClick = (item) => {
+        predictVideo({ id: item._id })
+    }
+
+
     useEffect(() => {
         refetchVideos()
     }, [newVideoUploadedToggler])
@@ -98,7 +113,7 @@ const VideoList = ({ newVideoUploadedToggler }) => {
                         </div>
                         {!item.item && (
                             <div class='flex justify-center w-full m-2'>
-                                <Button >Predict Video</Button>
+                                <Button onClick={() => predictVideoOnClick(item)}>Predict Video</Button>
                             </div>
                         )}
                         {item.predicted_video_path && (

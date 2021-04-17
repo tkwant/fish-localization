@@ -10,7 +10,9 @@ const VideoPage = () => {
         return <div>No data</div>
     } else {
         const item = history.location.state
-        const videoUrl = API.PUBLIC_URL + item.original_video_path
+        const videoUrl = API.PUBLIC_URL + "/" + item.original_video_path
+        console.log('videoUrl')
+        console.log(videoUrl)
         return <ReactPlayer controls url={videoUrl} />
     }
 
