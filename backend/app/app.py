@@ -4,16 +4,25 @@ from flask_cors import CORS
 from bson.objectid import ObjectId
 from werkzeug.utils import secure_filename
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import thread
+# from concurrent.futures import ThreadPoolExecutor, FIRST_COMPLETED
+# from concurrent.futures import thread
+from threading import Thread
+import threading
+
 import queue
 
 from DeepFish.predict import trainval
 import os
 import time
+
+
+
+
+
+
 q = queue.Queue()
 
-executor = ThreadPoolExecutor(max_workers=1)
+# executor = ThreadPoolExecutor(max_workers=1)
 
 app = Flask(__name__)
 CORS(app)
@@ -22,8 +31,16 @@ myclient = pymongo.MongoClient("mongodb://mongodb:27017/")
 mydb = myclient["fish_localization"]
 videos = mydb["videos"]
 jobs = mydb["jobs"]
-
 # app_path = 'backend/app/'
+
+
+videos.update_many(
+    {"predict_progress": {"$lt": 1}}, 
+    {
+        '$set': {
+            'predict_progress': 0
+        }})
+
 
 o_videos_dir = 'static/original_videos/'
 if not os.path.exists(o_videos_dir):
@@ -55,16 +72,27 @@ def delete_video(videoId):
 
 
 
-def checkUploadCanceled():
+def checkUploadCanceled(item_id):
     # if not q.empty():
     try: 
         q.get(False)
+        job_is_running = False
+        videos.update_one({
+        '_id': item_id
+    }, {
+        '$set': {
+            'predict_progress': 0
+        }
+    }, upsert=False)
+        # executor.shutdown()
         return True
     except queue.Empty:
         return False
     return False
 
 def onProgressUpload(item_id, progress):
+    if progress == 1:
+        job_is_running = False
     videos.update_one({
         '_id': item_id
     }, {
@@ -74,12 +102,28 @@ def onProgressUpload(item_id, progress):
     }, upsert=False)
     print(f"progress ${progress}")
 
+@app.route('/predict_progress/<item_id>', methods=["GET"])
+def predict_progress(item_id):
+    video = videos.find_one({"_id": item_id})
+    return make_response(jsonify({"progress": video['predict_progress']}), 201) 
+
+
+
 @app.route('/predict', methods=["POST"])
 def predict_video():
     item_id = request.json['id']
-    print(f"id: ${str(id)}")
     try:
-        result = executor.submit(trainval, checkUploadCanceled, onProgressUpload, item_id)
+        job_is_running = False
+        for thread in threading.enumerate(): 
+            if thread.name == 'fish_loc_predict':
+                job_is_running = True
+        if not job_is_running:
+            thread = Thread(target=trainval, args=(checkUploadCanceled, onProgressUpload, item_id))
+            thread.name = 'fish_loc_predict'
+            thread.daemon = True
+            thread.start()
+        else:
+            raise Exception('Currenty only one thread can be used for Prediction')
     except Exception as e:
         return make_response(str(e), 400)
     # print(future.result())
