@@ -5,17 +5,21 @@ from bson.objectid import ObjectId
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import thread
+import queue
+
 from DeepFish.predict import trainval
 import os
 import time
+q = queue.Queue()
 
-executor = ThreadPoolExecutor(1)
+executor = ThreadPoolExecutor(max_workers=1)
 
 app = Flask(__name__)
 CORS(app)
 
 myclient = pymongo.MongoClient("mongodb://mongodb:27017/")
-mydb = myclient["fish_count"]
+mydb = myclient["fish_localization"]
 videos = mydb["videos"]
 jobs = mydb["jobs"]
 
@@ -50,12 +54,32 @@ def delete_video(videoId):
         return make_response("Video Id not found in database", 400)
 
 
+
+def checkUploadCanceled():
+    # if not q.empty():
+    try: 
+        q.get(False)
+        return True
+    except queue.Empty:
+        return False
+    return False
+
+def onProgressUpload(item_id, progress):
+    videos.update_one({
+        '_id': item_id
+    }, {
+        '$set': {
+            'predict_progress': progress
+        }
+    }, upsert=False)
+    print(f"progress ${progress}")
+
 @app.route('/predict', methods=["POST"])
 def predict_video():
-    print(f"preditct infos: {request.form}")
+    item_id = request.json['id']
+    print(f"id: ${str(id)}")
     try:
-        result = executor.submit(trainval)
-        print(result)
+        result = executor.submit(trainval, checkUploadCanceled, onProgressUpload, item_id)
     except Exception as e:
         return make_response(str(e), 400)
     # print(future.result())
@@ -63,7 +87,7 @@ def predict_video():
     
 @app.route('/predict_cancel', methods=["POST"])
 def cancel_prediciting():
-    executor.shutdown()
+    q.put(True)
     return make_response(jsonify({}), 204)
 
 @app.route('/upload', methods=["POST"])
@@ -78,6 +102,7 @@ def upload_video():
             "original_video_path": original_video_path,
             "timestamp": datetime.utcnow(),
             "predicted_video_path": None,
+            "predict_progress": 0,
             "counts": None,
             "thumbnail_path": None
         })
