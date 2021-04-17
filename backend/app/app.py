@@ -33,6 +33,13 @@ videos = mydb["videos"]
 jobs = mydb["jobs"]
 # app_path = 'backend/app/'
 
+
+videos.update_many({}, {
+        '$set': {
+            'predict_progress': 0
+        }})
+
+
 o_videos_dir = 'static/original_videos/'
 if not os.path.exists(o_videos_dir):
     os.makedirs(o_videos_dir)
