@@ -9,7 +9,7 @@ from datetime import datetime
 # from concurrent.futures import thread
 from threading import Thread
 import threading
-
+import cv2
 import queue
 
 from DeepFish.predict import trainval
@@ -43,13 +43,18 @@ videos.update_many(
         }})
 
 ORIGINAL_VIDEOS_DIR_NAME = 'original_videos'
-o_videos_dir = f"static/{ORIGINAL_VIDEOS_DIR_NAME}/"
 PREDICT_VIDEOS_DIR_NAME = 'predicted_videos'
+THUMBNAIL_DIR_NAME = 'thumbnails'
+o_videos_dir = f"static/{ORIGINAL_VIDEOS_DIR_NAME}/"
 if not os.path.exists(o_videos_dir):
     os.makedirs(o_videos_dir)
 p_videos_dir = o_videos_dir.replace(ORIGINAL_VIDEOS_DIR_NAME, PREDICT_VIDEOS_DIR_NAME)
 if not os.path.exists(p_videos_dir):
     os.makedirs(p_videos_dir)
+
+thumbnail_dir = o_videos_dir.replace(ORIGINAL_VIDEOS_DIR_NAME, THUMBNAIL_DIR_NAME)
+if not os.path.exists(thumbnail_dir):
+    os.makedirs(thumbnail_dir)
 
 @app.route('/', methods=['GET'])
 def get():
@@ -160,7 +165,14 @@ def upload_video():
     uploaded_file = request.files['video']
     if uploaded_file.filename != '':
         obj_id = str(ObjectId())
-        original_video_path = o_videos_dir + obj_id + "." + uploaded_file.filename.split('.')[-1]
+        # original_video_path = o_videos_dir + obj_id + "." + uploaded_file.filename.split('.')[-1]
+        original_video_path = os.path.join(o_videos_dir, obj_id + "." + uploaded_file.filename.split('.')[-1])
+        uploaded_file.save(original_video_path)
+        thumbnail_path = original_video_path.replace(ORIGINAL_VIDEOS_DIR_NAME, THUMBNAIL_DIR_NAME)
+        thumbnail_path = thumbnail_path.replace('mp4', 'png')
+        cap = cv2.VideoCapture(original_video_path)
+        ret, thumbnail = cap.read()
+        cv2.imwrite(thumbnail_path, thumbnail)
         x = videos.insert_one({
             "_id": obj_id,
             "name": uploaded_file.filename,
@@ -169,9 +181,8 @@ def upload_video():
             "predicted_video_path": None,
             "predict_progress": 0,
             "counts": None,
-            "thumbnail_path": None
+            "thumbnail_path": thumbnail_path
         })
-        uploaded_file.save(original_video_path)
         return "success"
     return 'bad request!', 400
 
