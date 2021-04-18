@@ -121,6 +121,7 @@ def predict_video():
         item_id = request.json['id']
         item = videos.find_one({'_id': item_id})
         predicted_video_path = item['original_video_path'].replace(ORIGINAL_VIDEOS_DIR_NAME, PREDICT_VIDEOS_DIR_NAME)
+        predicted_video_path = predicted_video_path.replace('mp4', 'webm')
         videos.update_one({
         '_id': item_id
     }, {
