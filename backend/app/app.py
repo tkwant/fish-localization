@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, make_response, Response
 import pymongo
+from pymongo import ReturnDocument
 from flask_cors import CORS
 from bson.objectid import ObjectId
 from werkzeug.utils import secure_filename
@@ -41,11 +42,14 @@ videos.update_many(
             'predict_progress': 0
         }})
 
-
-o_videos_dir = 'static/original_videos/'
+ORIGINAL_VIDEOS_DIR_NAME = 'original_videos'
+o_videos_dir = f"static/{ORIGINAL_VIDEOS_DIR_NAME}/"
+PREDICT_VIDEOS_DIR_NAME = 'predicted_videos'
 if not os.path.exists(o_videos_dir):
     os.makedirs(o_videos_dir)
-
+p_videos_dir = o_videos_dir.replace(ORIGINAL_VIDEOS_DIR_NAME, PREDICT_VIDEOS_DIR_NAME)
+if not os.path.exists(p_videos_dir):
+    os.makedirs(p_videos_dir)
 
 @app.route('/', methods=['GET'])
 def get():
@@ -64,7 +68,7 @@ def get_videos():
 def delete_video(videoId):
     res = videos.find_one_and_delete({'_id': videoId})
     if res:
-        # os.remove(res['original_video_path'])
+        os.remove(res['original_video_path'])
         print("removed: " + res['original_video_path'])
         return make_response(jsonify({}), 204)
     else:
@@ -104,21 +108,37 @@ def onProgressUpload(item_id, progress):
 
 @app.route('/predict_progress/<item_id>', methods=["GET"])
 def predict_progress(item_id):
-    video = videos.find_one({"_id": item_id})
-    return make_response(jsonify({"progress": video['predict_progress']}), 201) 
+    item = videos.find_one({"_id": item_id})
+    return make_response(jsonify({"progress": item['predict_progress']}), 201) 
 
 
 
 @app.route('/predict', methods=["POST"])
 def predict_video():
-    item_id = request.json['id']
+
+    # item = videos.find_one_and_update({'_id': item_id}, {'$set': {'predicted_video_path': p_videos_dir}}, return_document=ReturnDocument.AFTER)
     try:
+        item_id = request.json['id']
+        item = videos.find_one({'_id': item_id})
+        predicted_video_path = item['original_video_path'].replace(ORIGINAL_VIDEOS_DIR_NAME, PREDICT_VIDEOS_DIR_NAME)
+        videos.update_one({
+        '_id': item_id
+    }, {
+        '$set': {
+            'predicted_video_path': predicted_video_path
+        }
+    }, upsert=False)
         job_is_running = False
         for thread in threading.enumerate(): 
             if thread.name == 'fish_loc_predict':
                 job_is_running = True
         if not job_is_running:
-            thread = Thread(target=trainval, args=(checkUploadCanceled, onProgressUpload, item_id))
+            thread = Thread(target=trainval, args=(
+                checkUploadCanceled, 
+                onProgressUpload, 
+                item_id, 
+                item['original_video_path'],
+                predicted_video_path))
             thread.name = 'fish_loc_predict'
             thread.daemon = True
             thread.start()
