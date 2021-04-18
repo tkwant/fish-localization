@@ -7,8 +7,8 @@ import Progressbar from '../../components/Progressbar'
 import { IconButton } from "@chakra-ui/react"
 import { CloseIcon } from '@chakra-ui/icons'
 import { useInterval } from 'react-use'
-
-const VideoCard = ({ item, showOriginal, deleteVideoOnClick }) => {
+import API from '../../API'
+const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
     const [progress, setProgress] = useState(item.predict_progress)
     const [fetchProgressTime, setFetchProgressTime] = useState(null)
 
@@ -59,7 +59,7 @@ const VideoCard = ({ item, showOriginal, deleteVideoOnClick }) => {
 
 
     useEffect(() => {
-        if (predictVideoIsSuccess) {
+        if (predictVideoIsSuccess && progress < 1) {
             setFetchProgressTime(500)
         }
     }, [predictVideoIsSuccess])
@@ -92,7 +92,7 @@ const VideoCard = ({ item, showOriginal, deleteVideoOnClick }) => {
             </div>
         } else if (progress === 1) {
             return <div class='flex justify-center w-full m-2'>
-                <Button>Show Predicted Video</Button>
+                <Button onClick={() => showVideo(item, false)}>Show Predicted Video</Button>
             </div>
         } else {
             return <div className="flex flex-row ">
@@ -122,9 +122,14 @@ const VideoCard = ({ item, showOriginal, deleteVideoOnClick }) => {
         <div className='m-2 w-300 m-2  bg-green-400 shadow' >
             <div class='flex justify-center w-full'>
                 {item.name}</div>
+            <div>
+                <img
+                    src={`${API.PUBLIC_URL}/${item.thumbnail_path}`}
+                />
+            </div>
             <img src={item.thumbnail}></img>
             <div class='flex justify-center w-full m-2'>
-                <Button onClick={() => showOriginal(item)}>Show Original</Button>
+                <Button onClick={() => showVideo(item, true)}>Show Original</Button>
             </div>
             {renderPrediction()}
             {/* <div class='flex justify-center w-full m-2'>

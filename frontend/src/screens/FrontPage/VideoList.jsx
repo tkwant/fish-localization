@@ -49,8 +49,8 @@ const VideoList = ({ newVideoUploadedToggler }) => {
 
 
 
-    const showOriginal = (item) => {
-        history.push(`/item/${item._id}`, item)
+    const showVideo = (item, isOriginal = true) => {
+        history.push(`/player/${isOriginal ? 'original' : 'predicted'}/${item._id}`, item)
     }
 
     const deleteVideoOnClick = (item) => {
@@ -98,7 +98,7 @@ const VideoList = ({ newVideoUploadedToggler }) => {
                 {videos.map(item => (
                     <VideoCard
                         item={item}
-                        showOriginal={showOriginal}
+                        showVideo={showVideo}
                         // predictVideoOnClick={predictVideoOnClick}
                         // predictCancelOnClick={predictCancelOnClick}
                         deleteVideoOnClick={deleteVideoOnClick}

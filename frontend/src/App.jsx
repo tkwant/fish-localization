@@ -17,7 +17,7 @@ const App = () => {
                     <BrowserRouter>
                         <Switch>
                             <Route path="/" component={FrontPage} exact />
-                            <Route path="/item" component={VideoPage} />
+                            <Route path="/player" component={VideoPage} />
                         </Switch>
                     </BrowserRouter>
                 </div>
