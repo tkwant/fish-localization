@@ -85,6 +85,11 @@ def delete_video(videoId):
         return make_response("Video Id not found in database", 400)
 
 
+@app.route('/fish_counts/<item_id>', methods=['GET'])
+def get_fish_counts(item_id):
+    item = fish_counts.find_one({"_id": item_id})
+    return make_response(jsonify({"fish_counts": item['fish_counts']}), 201) 
+
 
 def onFishCounted(item_id, fish_count_arr):
     df = pd.DataFrame(fish_count_arr, columns=['count'])
@@ -93,7 +98,7 @@ def onFishCounted(item_id, fish_count_arr):
     df.to_csv(item['fish_counts_csv_path'])
     fish_counts.insert_one({
             "_id": item_id,
-            "fish_counts_arr": fish_count_arr.tolist()
+            "fish_counts": fish_count_arr.tolist()
     })
     onProgressUpload(item_id, 1)
 
