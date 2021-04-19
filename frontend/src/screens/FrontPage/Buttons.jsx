@@ -37,7 +37,7 @@ const Buttons = ({ setNewVideoUploadedToggler }) => {
             onClose={onClose}
             uploadVideoState={uploadVideoState}
         />
-        <div className=' p-3 flex justify-center'>
+        <div>
             <input type='file' accept="video/mp4,video/x-m4v,video/*" name={name} ref={inputRef} onChange={onFileChange} style={{ display: 'none' }}></input>
             <Button colorScheme="teal" variant="solid" onClick={selectVideoFaker}>
                 Upload new video
