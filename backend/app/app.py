@@ -31,7 +31,7 @@ CORS(app)
 myclient = pymongo.MongoClient("mongodb://mongodb:27017/")
 mydb = myclient["fish_localization"]
 videos = mydb["videos"]
-jobs = mydb["jobs"]
+fish_counts = mydb["fish_counts"]
 # app_path = 'backend/app/'
 
 
@@ -91,6 +91,11 @@ def onFishCounted(item_id, fish_count_arr):
     df.index.name = "frame"
     item = videos.find_one({'_id': item_id})
     df.to_csv(item['fish_counts_csv_path'])
+    fish_counts.insert_one({
+            "_id": item_id,
+            "fish_counts_arr": fish_count_arr.tolist()
+    })
+    onProgressUpload(item_id, 1)
 
 def checkUploadCanceled(item_id):
     # if not q.empty():
@@ -188,7 +193,7 @@ def upload_video():
         predicted_video_path = original_video_path.replace(ORIGINAL_VIDEOS_DIR_NAME, PREDICT_VIDEOS_DIR_NAME)
         predicted_video_path = predicted_video_path.replace('mp4', 'webm')
         csv_save_dir = os.path.join(fish_counts_csv_dir, f"{obj_id}.csv")
-        x = videos.insert_one({
+        videos.insert_one({
             "_id": obj_id,
             "name": uploaded_file.filename,
             "original_video_path": original_video_path,
