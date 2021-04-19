@@ -15,7 +15,7 @@ import queue
 from DeepFish.predict import trainval
 import os
 import time
-
+import pandas as pd
 
 
 
@@ -45,6 +45,8 @@ videos.update_many(
 ORIGINAL_VIDEOS_DIR_NAME = 'original_videos'
 PREDICT_VIDEOS_DIR_NAME = 'predicted_videos'
 THUMBNAIL_DIR_NAME = 'thumbnails'
+FISH_COUNTS_CSV_DIR_NAME = 'fish_counts_csv'
+
 o_videos_dir = f"static/{ORIGINAL_VIDEOS_DIR_NAME}/"
 if not os.path.exists(o_videos_dir):
     os.makedirs(o_videos_dir)
@@ -55,6 +57,9 @@ if not os.path.exists(p_videos_dir):
 thumbnail_dir = o_videos_dir.replace(ORIGINAL_VIDEOS_DIR_NAME, THUMBNAIL_DIR_NAME)
 if not os.path.exists(thumbnail_dir):
     os.makedirs(thumbnail_dir)
+fish_counts_csv_dir = o_videos_dir.replace(ORIGINAL_VIDEOS_DIR_NAME, FISH_COUNTS_CSV_DIR_NAME)
+if not os.path.exists(fish_counts_csv_dir):
+    os.makedirs(fish_counts_csv_dir)
 
 @app.route('/', methods=['GET'])
 def get():
@@ -80,6 +85,12 @@ def delete_video(videoId):
         return make_response("Video Id not found in database", 400)
 
 
+
+def onFishCounted(item_id, fish_count_arr):
+    df = pd.DataFrame(fish_count_arr, columns=['count'])
+    df.index.name = "frame"
+    item = videos.find_one({'_id': item_id})
+    df.to_csv(item['fish_counts_csv_path'])
 
 def checkUploadCanceled(item_id):
     # if not q.empty():
@@ -125,15 +136,14 @@ def predict_video():
     try:
         item_id = request.json['id']
         item = videos.find_one({'_id': item_id})
-        predicted_video_path = item['original_video_path'].replace(ORIGINAL_VIDEOS_DIR_NAME, PREDICT_VIDEOS_DIR_NAME)
-        predicted_video_path = predicted_video_path.replace('mp4', 'webm')
-        videos.update_one({
-        '_id': item_id
-    }, {
-        '$set': {
-            'predicted_video_path': predicted_video_path
-        }
-    }, upsert=False)
+
+    #     videos.update_one({
+    #     '_id': item_id
+    # }, {
+    #     '$set': {
+    #         'predicted_video_path': predicted_video_path
+    #     }
+    # }, upsert=False)
         job_is_running = False
         for thread in threading.enumerate(): 
             if thread.name == 'fish_loc_predict':
@@ -142,9 +152,11 @@ def predict_video():
             thread = Thread(target=trainval, args=(
                 checkUploadCanceled, 
                 onProgressUpload, 
+                onFishCounted,
                 item_id, 
                 item['original_video_path'],
-                predicted_video_path))
+                item['predicted_video_path']
+                ))
             thread.name = 'fish_loc_predict'
             thread.daemon = True
             thread.start()
@@ -173,12 +185,16 @@ def upload_video():
         cap = cv2.VideoCapture(original_video_path)
         ret, thumbnail = cap.read()
         cv2.imwrite(thumbnail_path, thumbnail)
+        predicted_video_path = original_video_path.replace(ORIGINAL_VIDEOS_DIR_NAME, PREDICT_VIDEOS_DIR_NAME)
+        predicted_video_path = predicted_video_path.replace('mp4', 'webm')
+        csv_save_dir = os.path.join(fish_counts_csv_dir, f"{obj_id}.csv")
         x = videos.insert_one({
             "_id": obj_id,
             "name": uploaded_file.filename,
             "original_video_path": original_video_path,
             "timestamp": datetime.utcnow(),
-            "predicted_video_path": None,
+            "predicted_video_path": predicted_video_path,
+            "fish_counts_csv_path": csv_save_dir,
             "predict_progress": 0,
             "counts": None,
             "thumbnail_path": thumbnail_path
