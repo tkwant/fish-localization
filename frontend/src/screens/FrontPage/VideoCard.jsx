@@ -8,6 +8,23 @@ import { IconButton } from "@chakra-ui/react"
 import { CloseIcon } from '@chakra-ui/icons'
 import { useInterval } from 'react-use'
 import API from '../../API'
+
+const VideoRow = ({
+    disabled,
+    buttonText,
+    onClick
+}) => {
+    return <div className='m-2'>
+        <button
+            disabled={disabled}
+            onClick={onClick}
+            className="w-full p-2 px-6 bg-green-500 text-white rounded-md hover:bg-green-600"
+        >{buttonText}</button>
+        {/* <Button style={{ width: '100%' }} colorScheme="teal" disabled={disabled} onClick={onClick}>{buttonText}</Button> */}
+    </div>
+}
+
+
 const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
     const [progress, setProgress] = useState(item.predict_progress)
     const [fetchProgressTime, setFetchProgressTime] = useState(null)
@@ -45,7 +62,7 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
     }
 
     useEffect(() => {
-        if (item.predict_progress > 0 && item.predict_progress < 1) {
+        if (item.predict_progress > 0 && progress < 1) {
             setFetchProgressTime(500)
         }
     }, [item])
@@ -59,14 +76,18 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
 
 
     useEffect(() => {
-        if (predictVideoIsSuccess && progress < 1) {
+        if (predictVideoIsSuccess) {
             setFetchProgressTime(500)
         }
     }, [predictVideoIsSuccess])
 
     useInterval(
         () => {
-            getPredictProgress(item._id)
+            if (progress < 1) {
+                getPredictProgress(item._id)
+            } else {
+                setFetchProgressTime(null)
+            }
         },
         fetchProgressTime
     );
@@ -87,13 +108,16 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
 
     const renderPrediction = () => {
         if (progress === 0 && !fetchProgressTime) {
-            return <div class='flex justify-center w-full m-2'>
-                <Button onClick={() => predictVideoOnClick(item)}>Predict Video</Button>
-            </div>
+            return <VideoRow
+                onClick={() => predictVideoOnClick(item)}
+                buttonText='Predict Video'
+            />
+
         } else if (progress === 1) {
-            return <div class='flex justify-center w-full m-2'>
-                <Button onClick={() => showVideo(item, false)}>Show Predicted Video</Button>
-            </div>
+            return <VideoRow
+                onClick={() => showVideo(item, false)}
+                buttonText='Show Predicted Video'
+            />
         } else {
             return <div className="flex flex-row ">
 
@@ -119,31 +143,33 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
 
 
     return (
-        <div className='m-2 w-300 m-2  bg-green-400 shadow' >
-            <div class='flex justify-center w-full'>
-                {item.name}</div>
+
+        <div className='m-2 w-300 bg-lightGreen shadow-2xl p-2  transform duration-500 hover:-translate-y-2' >
+
+            <img
+                src={`${API.PUBLIC_URL}/${item.thumbnail_path}`}
+            />
+            <div class='text-center'>
+                <p className="text-2xl my-3">{item.name.replace('.mp4', '')}</p>
+            </div>
             <div>
-                <img
-                    src={`${API.PUBLIC_URL}/${item.thumbnail_path}`}
-                />
             </div>
             <img src={item.thumbnail}></img>
-            <div class='flex justify-center w-full m-2'>
-                <Button onClick={() => showVideo(item, true)}>Show Original</Button>
-            </div>
-            {renderPrediction()}
-            {/* <div class='flex justify-center w-full m-2'>
-                        <Button onClick={() => predictCancelOnClick(item)}>Cancel Predict Video</Button>
-                    </div> */}
-            {/* {item.predicted_video_path && (
+            <VideoRow
+                onClick={() => showVideo(item, true)}
+                buttonText='Show Original'
 
-            )} */}
-            <div class='flex justify-center w-full m-2'>
-                <Button disabled={!item.predicted_video_path}>Export as CSV</Button>
-            </div>
-            <div class='flex justify-center w-full m-2'>
-                <Button onClick={() => deleteVideoOnClick(item)}>Delete Video</Button>
-            </div>
+            />
+            {renderPrediction()}
+            <VideoRow
+                disabled={!item.predicted_video_path}
+                onClick={() => { }}
+                buttonText='Export as CSV'
+            />
+            <VideoRow
+                onClick={() => deleteVideoOnClick(item)}
+                buttonText='Delete Video'
+            />
             <div>
                 {item.timestamp.toLocaleString('de')}
             </div>
