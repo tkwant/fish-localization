@@ -6,6 +6,7 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { extendTheme } from "@chakra-ui/react"
+import Title from './Title'
 const theme = extendTheme({
     fonts: {
         heading: "Inter",
@@ -13,14 +14,12 @@ const theme = extendTheme({
     },
 })
 const queryClient = new QueryClient()
-console.log("import.meta.env")
-console.log(import.meta.env)
 const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <ChakraProvider theme={theme}>
                 <div class="flex flex-col h-screen">
-                    <header class="bg-gray-500">Fish Counter</header>
+                    <Title />
                     <BrowserRouter>
                         <Switch>
                             <Route path="/" component={FrontPage} exact />

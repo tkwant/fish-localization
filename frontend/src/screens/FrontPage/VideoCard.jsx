@@ -17,8 +17,16 @@ const VideoRow = ({
     return <div className='m-2'>
         <button
             disabled={disabled}
-            onClick={onClick}
-            className="w-full p-2 px-6 bg-green-500 text-white rounded-md hover:bg-green-600"
+            onClick={(e) => {
+                if (!disabled) {
+                    onClick(e)
+                }
+            }}
+            className={`w-full p-2 px-6 
+        ${disabled ? "bg-gray-500" : "bg-green-500"} 
+        ${disabled ? "cursor-not-allowed" : "cursor-pointer"} 
+        text-white rounded-md 
+        ${disabled ? "bg-gray-500" : "hover:bg-green-600"}`}
         >{buttonText}</button>
         {/* <Button style={{ width: '100%' }} colorScheme="teal" disabled={disabled} onClick={onClick}>{buttonText}</Button> */}
     </div>
@@ -26,9 +34,10 @@ const VideoRow = ({
 
 
 const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
+    console.log("item")
+    console.log(item)
     const [progress, setProgress] = useState(item.predict_progress)
     const [fetchProgressTime, setFetchProgressTime] = useState(null)
-
     const
         {
             mutate: getPredictProgress,
@@ -106,6 +115,8 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
     }, [getPredictProgressIsSuccess])
 
 
+
+
     const renderPrediction = () => {
         if (progress === 0 && !fetchProgressTime) {
             return <VideoRow
@@ -129,12 +140,6 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
                 <div className="mt-1 mr-2">
                     <IconButton size='sm' onClick={predictCancelOnClick} aria-label="Search database" icon={<CloseIcon />} />
                 </div>
-                {/* <div className="flex-grow">
-
-                    </div>
-                    <div className="w-3">
-                        A
-                    </div> */}
             </div>
 
 
@@ -162,8 +167,8 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
             />
             {renderPrediction()}
             <VideoRow
-                disabled={!item.predicted_video_path}
-                onClick={() => { }}
+                disabled={item.predict_progress < 1}
+                onClick={downloadCsv}
                 buttonText='Export as CSV'
             />
             <VideoRow
@@ -173,6 +178,7 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
             <div>
                 {item.timestamp.toLocaleString('de')}
             </div>
+
         </div>
     )
 }
