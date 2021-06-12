@@ -115,7 +115,11 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
     }, [getPredictProgressIsSuccess])
 
 
-
+    const downloadCsv = async () => {
+        window.location.assign(`${API.PUBLIC_URL}/${item.fish_counts_csv_path}`)
+        // const response = await fetch()
+        // const blob = response.blob()
+    }
 
     const renderPrediction = () => {
         if (progress === 0 && !fetchProgressTime) {
