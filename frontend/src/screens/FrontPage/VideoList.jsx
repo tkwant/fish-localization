@@ -91,7 +91,8 @@ const VideoList = ({ newVideoUploadedToggler }) => {
         return <div>{fetchVideosError.response.data}</div>
     }
 
-
+    console.log("videos")
+    console.log(videos)
     if (videos) {
         return (
             <div class="flex flex-wrap overflow-hidden justify-center sm:justify-start ">

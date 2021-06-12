@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button } from '@chakra-ui/react'
+// import { Button } from '@chakra-ui/react'
 import usePredictProgress from '../../hooks/usePredictProgress'
 import usePredictVideo from '../../hooks/usePredictVideo'
 import usePredictCancel from '../../hooks/usePredictCancel'
@@ -8,34 +8,10 @@ import { IconButton } from "@chakra-ui/react"
 import { CloseIcon } from '@chakra-ui/icons'
 import { useInterval } from 'react-use'
 import API from '../../API'
-
-const VideoRow = ({
-    disabled,
-    buttonText,
-    onClick
-}) => {
-    return <div className='m-2'>
-        <button
-            disabled={disabled}
-            onClick={(e) => {
-                if (!disabled) {
-                    onClick(e)
-                }
-            }}
-            className={`w-full p-2 px-6 
-        ${disabled ? "bg-gray-500" : "bg-green-500"} 
-        ${disabled ? "cursor-not-allowed" : "cursor-pointer"} 
-        text-white rounded-md 
-        ${disabled ? "bg-gray-500" : "hover:bg-green-600"}`}
-        >{buttonText}</button>
-        {/* <Button style={{ width: '100%' }} colorScheme="teal" disabled={disabled} onClick={onClick}>{buttonText}</Button> */}
-    </div>
-}
+import Button from '../../components/Button'
 
 
 const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
-    console.log("item")
-    console.log(item)
     const [progress, setProgress] = useState(item.predict_progress)
     const [fetchProgressTime, setFetchProgressTime] = useState(null)
     const
@@ -123,16 +99,19 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
 
     const renderPrediction = () => {
         if (progress === 0 && !fetchProgressTime) {
-            return <VideoRow
+            return <Button
                 onClick={() => predictVideoOnClick(item)}
-                buttonText='Predict Video'
-            />
+            >
+                Predict Video
+            </Button>
+            
 
         } else if (progress === 1) {
-            return <VideoRow
-                onClick={() => showVideo(item, false)}
-                buttonText='Show Predicted Video'
-            />
+            return <Button
+            onClick={() => showVideo(item, false)}
+            >
+                Show Predicted Video
+            </Button>
         } else {
             return <div className="flex flex-row ">
 
@@ -164,21 +143,19 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
             <div>
             </div>
             <img src={item.thumbnail}></img>
-            <VideoRow
+            <Button
                 onClick={() => showVideo(item, true)}
-                buttonText='Show Original'
-
-            />
+            >
+                Show Original
+            </Button>
             {renderPrediction()}
-            <VideoRow
+            <Button
                 disabled={item.predict_progress < 1}
                 onClick={downloadCsv}
-                buttonText='Export as CSV'
-            />
-            <VideoRow
+            >Export as CSV</Button>
+            <Button
                 onClick={() => deleteVideoOnClick(item)}
-                buttonText='Delete Video'
-            />
+            >Delete Video </Button>
             <div>
                 {item.timestamp.toLocaleString('de')}
             </div>

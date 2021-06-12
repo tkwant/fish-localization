@@ -3,6 +3,9 @@ import axios from 'axios'
 
 const PUBLIC_URL = import.meta.env.SNOWPACK_PUBLIC_API_URL
 
+console.log("PUBLIC_URL")
+console.log(`${PUBLIC_URL}/items`)
+
 const useVideos = () => {
   return useQuery('videos', () => axios(`${PUBLIC_URL}/items`).then(res => res.data), {
     refetchOnWindowFocus: false,
