@@ -13,11 +13,13 @@ const FrontPage = () => {
                 />
                 <div style={{ height: 60 }} />
             </main>
-            <Footer>
-                <Buttons
+            <Footer
+                setNewVideoUploadedToggler={setNewVideoUploadedToggler}
+            />
+                {/* <Buttons
                     setNewVideoUploadedToggler={setNewVideoUploadedToggler}
-                />
-            </Footer>
+                /> */}
+            {/* </Footer> */}
             {/* <footer class="bg-gray-500">
 
             </footer> */}
