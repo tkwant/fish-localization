@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import { Button } from "@chakra-ui/react"
 import { useHistory } from 'react-router-dom'
 import useVideos from '../../hooks/useVideos'
 import useDeleteVideo from '../../hooks/useDeleteVideo'

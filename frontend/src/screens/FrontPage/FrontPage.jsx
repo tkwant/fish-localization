@@ -1,5 +1,4 @@
 import React from 'react'
-import Buttons from './Buttons'
 import VideoList from './VideoList'
 import { useBoolean } from 'react-use'
 import Footer from './Footer'
@@ -16,13 +15,6 @@ const FrontPage = () => {
             <Footer
                 setNewVideoUploadedToggler={setNewVideoUploadedToggler}
             />
-                {/* <Buttons
-                    setNewVideoUploadedToggler={setNewVideoUploadedToggler}
-                /> */}
-            {/* </Footer> */}
-            {/* <footer class="bg-gray-500">
-
-            </footer> */}
         </>
     )
 
