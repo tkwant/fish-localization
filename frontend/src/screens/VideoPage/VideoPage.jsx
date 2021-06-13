@@ -4,8 +4,8 @@ import ReactPlayer from 'react-player'
 import API from '../../API'
 import useFishCounts from '../../hooks/useFishCounts'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-const FishCountsVis = ({ itemId, isOriginal }) => {
+import {useWindowSize} from 'react-use'
+const FishCountsVis = ({ itemId, isOriginal, width }) => {
     const {
         data, isLoading, isError, isSuccess
     } = useFishCounts({ itemId })
@@ -20,7 +20,7 @@ const FishCountsVis = ({ itemId, isOriginal }) => {
             }))
             return <div>
                 <AreaChart
-                    width={1780}
+                    width={width -30}
                     height={150}
                     data={newData}
                     margin={{
@@ -45,23 +45,26 @@ const FishCountsVis = ({ itemId, isOriginal }) => {
 
 
 const VideoPage = () => {
+    const {width, height} = useWindowSize()
+    // const height = 1080
     const history = useHistory()
     if (!history.location.state) {
         return <div>No data</div>
     } else {
         const isOriginal = history.location.pathname.split('/').slice(-2, -1)[0] === 'original'
         const item = history.location.state
-        // const videoUrl = API.PUBLIC_URL + "/" + item.original_video_path
-
         const videoUrl = `${API.PUBLIC_URL}/${isOriginal ? item.original_video_path : item.predicted_video_path}`
         return <div>
-            <ReactPlayer
-                width={1800}
-                height={700}
-                controls
-                url={videoUrl} />
-            <FishCountsVis itemId={item._id} isOriginal={isOriginal} />
-        </div>
+        <ReactPlayer
+            width="auto"
+            width={width}
+            height={height * 0.65}
+            
+            controls
+            url={videoUrl} />
+        <FishCountsVis width={width} itemId={item._id} isOriginal={isOriginal} />
+    </div>
+
     }
 
 
