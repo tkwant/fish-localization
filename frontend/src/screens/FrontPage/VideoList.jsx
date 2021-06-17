@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import useVideos from '../../hooks/useVideos'
 import useDeleteVideo from '../../hooks/useDeleteVideo'
@@ -33,7 +33,7 @@ const VideoList = ({ newVideoUploadedToggler }) => {
             isLoading: fetchVideosIsLoading,
             error: fetchVideosError,
             reset: fetchVideosReset,
-            data: videos,
+            data: videosRaw,
             refetch: refetchVideos
         } = useVideos()
 
@@ -45,7 +45,11 @@ const VideoList = ({ newVideoUploadedToggler }) => {
             isSuccess: deleteVideoIsSuccess,
             reset: deleteVideoReset,
         } = useDeleteVideo()
-
+    const [videos, setVideos] = useState([])
+    
+    useEffect(()=>{
+        setVideos(videosRaw)
+    },[videosRaw])
 
 
     const showVideo = (item, isOriginal = true) => {
@@ -53,10 +57,10 @@ const VideoList = ({ newVideoUploadedToggler }) => {
     }
 
     const deleteVideoOnClick = (item) => {
-        deleteVideo(item._id)
+        // deleteVideo(item._id)
+        const newVideos = videos.filter(vid=>vid._id != item._id)
+        setVideos(newVideos)
     }
-
-
 
 
 
@@ -64,18 +68,9 @@ const VideoList = ({ newVideoUploadedToggler }) => {
         refetchVideos()
     }, [newVideoUploadedToggler])
 
-    useEffect(() => {
-        if (deleteVideoIsSuccess) {
-            refetchVideos()
-            deleteVideoReset()
-        }
-    }, [deleteVideoIsSuccess])
 
 
-
-
-
-    if (fetchVideosIsLoading || deleteVideoIsLoading) {
+    if (fetchVideosIsLoading) {
         return <div>loading</div>
     }
 
