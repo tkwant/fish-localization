@@ -14,7 +14,7 @@ const FishCountsVis = ({ itemId, isOriginal, width }) => {
             return <div>Loading</div>
         }
         if (isSuccess) {
-            const newData = data.map((count, i) => ({
+            const newData = data.fish_counts.map((count, i) => ({
                 frame: i,
                 fishCount: count
             }))
@@ -30,7 +30,7 @@ const FishCountsVis = ({ itemId, isOriginal, width }) => {
                         bottom: 0,
                     }}
                 >
-                    <XAxis dataKey="frame" />
+                    <XAxis dataKey="frame" domain={['dataMin', 'dataMax']}   tickFormatter={val=>val/data.fps}/>
                     <YAxis />
                     <Area type="monotone" dataKey="fishCount" stroke="#8884d8" fill="#8884d8" />
                 </AreaChart>
@@ -58,7 +58,7 @@ const VideoPage = () => {
         <ReactPlayer
             width="auto"
             width={width}
-            height={height * 0.65}
+            height={height * 0.75}
             
             controls
             url={videoUrl} />

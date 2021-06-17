@@ -60,20 +60,16 @@ const Footer = ({setNewVideoUploadedToggler}) =>{
             <Modal
                 isOpen={isModalOpen}
                 onClose={()=>{
+                    inputRef.current.value = ""
                     setIsModalOpen(false)
                     breakUpload()
                 }}
                 title="Upload Video"
             >
-                <ProgressBar>
-                    {uploadVideoState.progress}
-                </ProgressBar>
-{/* <ProgressModal
-    breakUpload={breakUpload}
-    isOpen={isOpen}
-    onClose={onClose}
-    uploadVideoState={uploadVideoState}
-/> */}
+                <ProgressBar
+                    progress={uploadVideoState.progress}
+                />
+                    
             </Modal>
             <div style={style}>
                 <input type='file' accept="video/mp4,video/x-m4v,video/*" name={name} ref={inputRef} onChange={onFileChange} style={{ display: 'none' }}></input>
