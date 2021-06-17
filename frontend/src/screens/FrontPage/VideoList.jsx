@@ -57,7 +57,7 @@ const VideoList = ({ newVideoUploadedToggler }) => {
     }
 
     const deleteVideoOnClick = (item) => {
-        // deleteVideo(item._id)
+        deleteVideo(item._id)
         const newVideos = videos.filter(vid=>vid._id != item._id)
         setVideos(newVideos)
     }

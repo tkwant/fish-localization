@@ -1,8 +1,8 @@
 import React from 'react'
 
-const Button = ({children, disabled, onClick, className='w-full'}) =>{
+const Button = ({children, disabled, onClick, onDisabledClick=()=>{}, className='w-full'}) =>{
     return <button
-    onClick={onClick}
+    onClick={disabled? onDisabledClick: onClick}
     className={`${className} p-2 px-6 mb-2
     ${disabled ? "bg-gray-500" : "bg-green-500"} 
     ${disabled ? "cursor-not-allowed" : "cursor-pointer"} 
