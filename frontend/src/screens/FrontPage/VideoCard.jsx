@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react'
 // import { Button } from '@chakra-ui/react'
+import { FaTimes } from 'react-icons/fa';
+
 import usePredictProgress from '../../hooks/usePredictProgress'
 import usePredictVideo from '../../hooks/usePredictVideo'
 import usePredictCancel from '../../hooks/usePredictCancel'
 import Progressbar from '../../components/ProgressBar'
-import { IconButton } from "@chakra-ui/react"
+// import { IconButton } from "@chakra-ui/react"
 import { CloseIcon } from '@chakra-ui/icons'
 import { useInterval } from 'react-use'
 import API from '../../API'
 import Button from '../../components/Button'
 import showToast from '../../components/Toast'
-
-
+import IconButton from '../../components/IconButton'
 const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
     const [progress, setProgress] = useState(item.predict_progress)
     const [fetchProgressTime, setFetchProgressTime] = useState(null)
@@ -130,7 +131,9 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
                     />
                 </div>
                 <div className="mt-1 mr-2">
-                    <IconButton size='sm' onClick={predictCancelOnClick} aria-label="Search database" icon={<CloseIcon />} />
+                <IconButton onClick={predictCancelOnClick}>
+                    <FaTimes/>
+                </IconButton>
                 </div>
             </div>
 
@@ -142,7 +145,6 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
     return (
 
         <div className='m-2 w-300 bg-lightGreen shadow-2xl p-2  transform duration-500 hover:-translate-y-2' >
-
             <img
                 src={`${API.PUBLIC_URL}/${item.thumbnail_path}`}
             />
