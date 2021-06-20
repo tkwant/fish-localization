@@ -221,7 +221,7 @@ const Footer = ({setNewVideoUploadedToggler}) =>{
                     </Button>
                     <Info
                         isInfoModalOpen={isInfoModalOpen}
-                        setIsInfoModalOpen={setIsModalOpen}
+                        setIsInfoModalOpen={setIsInfoModalOpen}
                     />
             </div>
         </div>
