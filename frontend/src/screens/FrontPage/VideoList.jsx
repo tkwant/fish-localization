@@ -4,6 +4,7 @@ import useVideos from '../../hooks/useVideos'
 import useDeleteVideo from '../../hooks/useDeleteVideo'
 import VideoCard from './VideoCard'
 import useAccessToken from '../../hooks/useAccessToken'
+import Notifications from '../../components/Notifications'
 
 const DUMMY_CARDS = [
     {
@@ -30,9 +31,8 @@ const DUMMY_CARDS = [
 
 const VideoList = ({ newVideoUploadedToggle }) => {
     const history = useHistory()
-    // const [accessToken, setAccessToken, remove] = useLocalStorage('fish-loc-access-token', '')
-    // const [accessToken, setAccessToken] = useLocalStorageState('fish-loc-access-token', [])
     const [accessToken, setAccessToken] = useAccessToken()
+    const [deletedVideoId, setDeletedVideoId] = useState()
     const
         {
             isLoading: fetchVideosIsLoading,
@@ -46,8 +46,7 @@ const VideoList = ({ newVideoUploadedToggle }) => {
         {
             mutate: deleteVideo,
             error: deleteVideoError,
-            isLoading: deleteVideoIsLoading,
-            isSuccess: deleteVideoIsSuccess,
+            status: deleteVideoStatus, 
             reset: deleteVideoReset,
         } = useDeleteVideo()
     const [videos, setVideos] = useState([])
@@ -63,15 +62,25 @@ const VideoList = ({ newVideoUploadedToggle }) => {
 
     const deleteVideoOnClick = (item) => {
         deleteVideo(item._id)
-        const newVideos = videos.filter(vid=>vid._id != item._id)
-        setVideos(newVideos)
+        setDeletedVideoId(item._id)
+
     }
 
+    useEffect(()=>{
+        if(deleteVideoStatus === "success"){
+            const newVideos = videos.filter(vid=>vid._id != deletedVideoId)
+            setVideos(newVideos)
+        } else if (deleteVideoStatus === "error"){
+            Notifications.showToast({
+                icon: 'error',
+                text: deleteVideoError.request.response
+            })
+        }
+
+    },[deleteVideoStatus])
 
 
     useEffect(() => {
-        console.log("HALLO")
-        console.log(accessToken)
         refetchVideos()
     }, [newVideoUploadedToggle])
 
@@ -82,10 +91,7 @@ const VideoList = ({ newVideoUploadedToggle }) => {
     }
 
 
-    if (deleteVideoError) {
-        deleteVideoReset()
-        return <div>{deleteVideoError.response.data}</div>
-    }
+
 
     if (fetchVideosError) {
         fetchVideosReset()

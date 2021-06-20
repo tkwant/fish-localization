@@ -29,4 +29,4 @@ const showToast = ({icon, text}) =>{
 
 
 
-export default showToast
+export default {showToast}

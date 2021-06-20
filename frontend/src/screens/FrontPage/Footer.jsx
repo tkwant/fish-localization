@@ -67,7 +67,7 @@ const Footer = ({setNewVideoUploadedToggler}) =>{
 
     useEffect(()=>{
         axios.defaults.headers.common.Authorization =
-        'Bearer ' + accessToken
+         (accessToken? 'Bearer ' + accessToken: '')
     }, [accessToken])
     
     useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import VideoPage from './screens/VideoPage/VideoPage'
 import FrontPage from './screens/FrontPage/FrontPage'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
@@ -10,8 +10,12 @@ import Title from './Title'
 //         body: "Inter",
 //     },
 // })
+
+
+
 const queryClient = new QueryClient()
 const App = () => {
+
     return (
         <QueryClientProvider client={queryClient}>
             <div class="flex flex-col h-screen">

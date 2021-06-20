@@ -12,7 +12,6 @@ const useUploadVideo = () => {
 
 
     const breakUpload = () => {
-        console.log("BREAKED")
         isUploadBreaked.current = true
     }
 
@@ -32,7 +31,6 @@ const useUploadVideo = () => {
                 url: API.UPLOAD_VIDEO,
                 data: formData,
                 onUploadProgress: (p) => {
-                    console.log(isUploadBreaked.current)
                     if (isUploadBreaked.current) {
                         cancelTokenSource.cancel()
                     }

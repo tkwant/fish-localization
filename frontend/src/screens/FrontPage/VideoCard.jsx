@@ -9,7 +9,7 @@ import Progressbar from '../../components/ProgressBar'
 import { useInterval } from 'react-use'
 import API from '../../API'
 import Button from '../../components/Button'
-import showToast from '../../components/Toast'
+import Notifactions from '../../components/Notifications'
 import IconButton from '../../components/IconButton'
 const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
     const [progress, setProgress] = useState(item.predict_progress)
@@ -26,10 +26,9 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
     const
         {
             mutate: predictVideo,
+            status: predictVideoStatus, 
             error: predictVideoError,
-            isLoading: predictVideoIsLoading,
             isSuccess: predictVideoIsSuccess,
-            reset: predictVideoReset,
         } = usePredictVideo()
     const
         {
@@ -37,6 +36,7 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
             error: predictCancelError,
             isLoading: predictCancelIsLoading,
             isSuccess: predictCancelIsSuccess,
+            status: predictCancelStatus, 
             reset: predictCancelReset,
         } = usePredictCancel()
 
@@ -47,11 +47,30 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
         predictCancel()
     }
 
+    useEffect(()=>{
+        if(predictVideoStatus === "error"){
+            Notifactions.showToast({
+                icon: 'error',
+                text: predictVideoError.request.response
+            })    
+        }
+    },[predictVideoStatus])
+
     useEffect(() => {
         if (item.predict_progress > 0 && progress < 1) {
             setFetchProgressTime(500)
         }
     }, [item])
+
+    useEffect(()=>{
+        if(predictCancelError){
+            Notifactions.showToast({
+                icon: 'error',
+                text: predictCancelError.request.response
+            })
+        }
+
+    }, [predictCancelError])
 
     useEffect(() => {
         if (predictCancelIsSuccess) {
@@ -93,21 +112,21 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
 
 
     const downloadCsv = async () => {
-        window.location.assign(`${API.PUBLIC_URL}/${item.fish_counts_csv_path}`)
-        // const response = await fetch()
-        // const blob = response.blob()
+        if(item.predict_progress < 1){
+            Notifactions.showToast({
+                icon: 'error',
+                text: 'Please predict first'
+            })
+        }else{
+            window.location.assign(`${API.PUBLIC_URL}/${item.fish_counts_csv_path}`)
+        }
+
     }
 
     const renderPrediction = () => {
         if (progress === 0 && !fetchProgressTime) {
             return <Button
                 disabled={!accessToken}
-                onDisabledClick={()=>{
-                    showToast({
-                        icon: 'error',
-                        text: 'Please Login'
-                    })                   
-                }}
                 onClick={() => predictVideoOnClick(item)}
             >
                 Predict Video
@@ -161,22 +180,9 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
             <Button
                 disabled={item.predict_progress < 1}
                 onClick={downloadCsv}
-                onDisabledClick={()=>{
-                    showToast({
-                        icon: 'error',
-                        text: 'Please predict first'
-                    })
-                }}
             >Export as CSV</Button>
             <Button
                 disabled={!accessToken}
-                onDisabledClick={()=>{
-                    console.log("HERE I AM ")
-                    showToast({
-                        icon: 'error',
-                        text: 'Please Login'
-                    })
-                }}
                 onClick={() => deleteVideoOnClick(item)}
             >Delete Video </Button>
             <div>
