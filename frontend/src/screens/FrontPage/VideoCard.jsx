@@ -9,11 +9,15 @@ import { CloseIcon } from '@chakra-ui/icons'
 import { useInterval } from 'react-use'
 import API from '../../API'
 import Button from '../../components/Button'
+import {useLocalStorage} from 'react-use'
+import showToast from '../../components/Toast'
 
 
 const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
     const [progress, setProgress] = useState(item.predict_progress)
     const [fetchProgressTime, setFetchProgressTime] = useState(null)
+    const [accessToken, setAccessToken, remove] = useLocalStorage('fish-loc-access-token', '')
+
     const
         {
             mutate: getPredictProgress,
@@ -100,6 +104,13 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
     const renderPrediction = () => {
         if (progress === 0 && !fetchProgressTime) {
             return <Button
+                disabled={!accessToken}
+                onDisabledClick={()=>{
+                    showToast({
+                        icon: 'error',
+                        text: 'Please Login'
+                    })                   
+                }}
                 onClick={() => predictVideoOnClick(item)}
             >
                 Predict Video
@@ -152,8 +163,22 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
             <Button
                 disabled={item.predict_progress < 1}
                 onClick={downloadCsv}
+                onDisabledClick={()=>{
+                    showToast({
+                        icon: 'error',
+                        text: 'Please predict first'
+                    })
+                }}
             >Export as CSV</Button>
             <Button
+                disabled={!accessToken}
+                onDisabledClick={()=>{
+                    console.log("HERE I AM ")
+                    showToast({
+                        icon: 'error',
+                        text: 'Please Login'
+                    })
+                }}
                 onClick={() => deleteVideoOnClick(item)}
             >Delete Video </Button>
             <div>

@@ -2939,6 +2939,11 @@
   dependencies:
     "has-flag" "^4.0.0"
 
+"sweetalert2@^10.14.0":
+  "integrity" "sha512-oNe+md5tmmS3fGfVHa7gVPlun7Td2oANSacnZCeghnrr3OHBi6UPVPU+GFrymwaDqwQspACilLRmRnM7aTjNPA=="
+  "resolved" "https://registry.npmjs.org/sweetalert2/-/sweetalert2-10.16.9.tgz"
+  "version" "10.16.9"
+
 "tailwindcss@^2.1.4":
   "integrity" "sha512-fh1KImDLg6se/Suaelju/5oFbqq1b0ntagmGLu0aG9LlnNPGHgO1n/4E57CbKcCtyz/VYnvVXUiWmfyfBBZQ6g=="
   "resolved" "https://registry.npmjs.org/tailwindcss/-/tailwindcss-2.1.4.tgz"
