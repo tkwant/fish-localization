@@ -1,14 +1,15 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import axios from 'axios'
 import API from '../API'
 
 
 const useUploadVideo = () => {
     const isUploadBreaked = useRef()
-    isUploadBreaked.current = false
+    // isUploadBreaked.current = false
     const [state, setState] = useState({
         idle: true
     })
+
 
     const breakUpload = () => {
         isUploadBreaked.current = true
@@ -42,14 +43,17 @@ const useUploadVideo = () => {
                 isSuccess: response.data === 'success'
             })
         } catch (error) {
-            setState({ error })
+            setState({ 
+                error: error.request.response, 
+                isSuccess: false
+            })
         }
         setState({
             idle: true
         })
+        isUploadBreaked.current = false
     })
     return [state, mutate, breakUpload]
 }
 
 export default useUploadVideo
-

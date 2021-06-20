@@ -1,31 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { Button } from '@chakra-ui/react'
+// import { Button } from '@chakra-ui/react'
+import { FaTimes } from 'react-icons/fa';
+
 import usePredictProgress from '../../hooks/usePredictProgress'
 import usePredictVideo from '../../hooks/usePredictVideo'
 import usePredictCancel from '../../hooks/usePredictCancel'
-import Progressbar from '../../components/Progressbar'
-import { IconButton } from "@chakra-ui/react"
-import { CloseIcon } from '@chakra-ui/icons'
+import Progressbar from '../../components/ProgressBar'
 import { useInterval } from 'react-use'
 import API from '../../API'
-
-const VideoRow = ({
-    disabled,
-    buttonText,
-    onClick
-}) => {
-    return <div className='m-2'>
-        <button
-            disabled={disabled}
-            onClick={onClick}
-            className="w-full p-2 px-6 bg-green-500 text-white rounded-md hover:bg-green-600"
-        >{buttonText}</button>
-        {/* <Button style={{ width: '100%' }} colorScheme="teal" disabled={disabled} onClick={onClick}>{buttonText}</Button> */}
-    </div>
-}
-
-
-const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
+import Button from '../../components/Button'
+import Notifactions from '../../components/Notifications'
+import IconButton from '../../components/IconButton'
+const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
     const [progress, setProgress] = useState(item.predict_progress)
     const [fetchProgressTime, setFetchProgressTime] = useState(null)
 
@@ -40,10 +26,9 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
     const
         {
             mutate: predictVideo,
+            status: predictVideoStatus, 
             error: predictVideoError,
-            isLoading: predictVideoIsLoading,
             isSuccess: predictVideoIsSuccess,
-            reset: predictVideoReset,
         } = usePredictVideo()
     const
         {
@@ -51,6 +36,7 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
             error: predictCancelError,
             isLoading: predictCancelIsLoading,
             isSuccess: predictCancelIsSuccess,
+            status: predictCancelStatus, 
             reset: predictCancelReset,
         } = usePredictCancel()
 
@@ -61,11 +47,30 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
         predictCancel()
     }
 
+    useEffect(()=>{
+        if(predictVideoStatus === "error"){
+            Notifactions.showToast({
+                icon: 'error',
+                text: predictVideoError.request.response
+            })    
+        }
+    },[predictVideoStatus])
+
     useEffect(() => {
         if (item.predict_progress > 0 && progress < 1) {
             setFetchProgressTime(500)
         }
     }, [item])
+
+    useEffect(()=>{
+        if(predictCancelError){
+            Notifactions.showToast({
+                icon: 'error',
+                text: predictCancelError.request.response
+            })
+        }
+
+    }, [predictCancelError])
 
     useEffect(() => {
         if (predictCancelIsSuccess) {
@@ -106,18 +111,34 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
     }, [getPredictProgressIsSuccess])
 
 
+    const downloadCsv = async () => {
+        if(item.predict_progress < 1){
+            Notifactions.showToast({
+                icon: 'error',
+                text: 'Please predict first'
+            })
+        }else{
+            window.location.assign(`${API.PUBLIC_URL}/${item.fish_counts_csv_path}`)
+        }
+
+    }
+
     const renderPrediction = () => {
         if (progress === 0 && !fetchProgressTime) {
-            return <VideoRow
+            return <Button
+                disabled={!accessToken}
                 onClick={() => predictVideoOnClick(item)}
-                buttonText='Predict Video'
-            />
+            >
+                Predict Video
+            </Button>
+            
 
         } else if (progress === 1) {
-            return <VideoRow
-                onClick={() => showVideo(item, false)}
-                buttonText='Show Predicted Video'
-            />
+            return <Button
+            onClick={() => showVideo(item, false)}
+            >
+                Show Predicted Video
+            </Button>
         } else {
             return <div className="flex flex-row ">
 
@@ -127,14 +148,10 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
                     />
                 </div>
                 <div className="mt-1 mr-2">
-                    <IconButton size='sm' onClick={predictCancelOnClick} aria-label="Search database" icon={<CloseIcon />} />
+                <IconButton className="px-2 h-8" onClick={predictCancelOnClick}>
+                    <FaTimes/>
+                </IconButton>
                 </div>
-                {/* <div className="flex-grow">
-
-                    </div>
-                    <div className="w-3">
-                        A
-                    </div> */}
             </div>
 
 
@@ -145,7 +162,6 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
     return (
 
         <div className='m-2 w-300 bg-lightGreen shadow-2xl p-2  transform duration-500 hover:-translate-y-2' >
-
             <img
                 src={`${API.PUBLIC_URL}/${item.thumbnail_path}`}
             />
@@ -155,24 +171,24 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
             <div>
             </div>
             <img src={item.thumbnail}></img>
-            <VideoRow
+            <Button
                 onClick={() => showVideo(item, true)}
-                buttonText='Show Original'
-
-            />
+            >
+                Show Original
+            </Button>
             {renderPrediction()}
-            <VideoRow
-                disabled={!item.predicted_video_path}
-                onClick={() => { }}
-                buttonText='Export as CSV'
-            />
-            <VideoRow
+            <Button
+                disabled={item.predict_progress < 1}
+                onClick={downloadCsv}
+            >Export as CSV</Button>
+            <Button
+                disabled={!accessToken}
                 onClick={() => deleteVideoOnClick(item)}
-                buttonText='Delete Video'
-            />
+            >Delete Video </Button>
             <div>
                 {item.timestamp.toLocaleString('de')}
             </div>
+
         </div>
     )
 }

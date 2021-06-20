@@ -39,9 +39,15 @@ module.exports = {
           DEFAULT: '#3163EB'
         }
       },
+      // fontFamily: {
+      //   sans: ['Inter var', ...defaultTheme.fontFamily.sans],
+      // },
       fontFamily: {
-        sans: ['Inter var', ...defaultTheme.fontFamily.sans],
-      },
+        sans: [
+          'Lato',
+          ...defaultTheme.fontFamily.sans,
+        ]
+      }
     },
   },
   variants: {},

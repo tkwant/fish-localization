@@ -1,26 +1,24 @@
 import React from 'react'
-import Buttons from './Buttons'
 import VideoList from './VideoList'
-import { useBoolean } from 'react-use'
 import Footer from './Footer'
+import { useState } from 'react'
 const FrontPage = () => {
-    const [newVideoUploadedToggler, setNewVideoUploadedToggler] = useBoolean(false)
+    const [newVideoUploadedToggle, setNewVideoUploadedToggle] = useState(false)
+
+    const setNewVideoUploadedToggler = ()=>{
+        setNewVideoUploadedToggle(!newVideoUploadedToggle)
+    }
     return (
         <>
             <main class="h-full">
                 <VideoList
-                    newVideoUploadedToggler={newVideoUploadedToggler}
+                    newVideoUploadedToggle={newVideoUploadedToggle}
                 />
                 <div style={{ height: 60 }} />
             </main>
-            <Footer>
-                <Buttons
-                    setNewVideoUploadedToggler={setNewVideoUploadedToggler}
-                />
-            </Footer>
-            {/* <footer class="bg-gray-500">
-
-            </footer> */}
+            <Footer
+                setNewVideoUploadedToggler={setNewVideoUploadedToggler}
+            />
         </>
     )
 

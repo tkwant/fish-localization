@@ -1,9 +1,11 @@
-import React, { useEffect, useRef } from 'react'
-import { Button } from "@chakra-ui/react"
+import React, { useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import useVideos from '../../hooks/useVideos'
 import useDeleteVideo from '../../hooks/useDeleteVideo'
 import VideoCard from './VideoCard'
+import useAccessToken from '../../hooks/useAccessToken'
+import Notifications from '../../components/Notifications'
+
 const DUMMY_CARDS = [
     {
         thumbnail: 'https://i.imgur.com/lhJIz7A.jpg',
@@ -27,14 +29,16 @@ const DUMMY_CARDS = [
 ]
 
 
-const VideoList = ({ newVideoUploadedToggler }) => {
+const VideoList = ({ newVideoUploadedToggle }) => {
     const history = useHistory()
+    const [accessToken, setAccessToken] = useAccessToken()
+    const [deletedVideoId, setDeletedVideoId] = useState()
     const
         {
             isLoading: fetchVideosIsLoading,
             error: fetchVideosError,
             reset: fetchVideosReset,
-            data: videos,
+            data: videosRaw,
             refetch: refetchVideos
         } = useVideos()
 
@@ -42,11 +46,14 @@ const VideoList = ({ newVideoUploadedToggler }) => {
         {
             mutate: deleteVideo,
             error: deleteVideoError,
-            isLoading: deleteVideoIsLoading,
-            isSuccess: deleteVideoIsSuccess,
+            status: deleteVideoStatus, 
             reset: deleteVideoReset,
         } = useDeleteVideo()
-
+    const [videos, setVideos] = useState([])
+    
+    useEffect(()=>{
+        setVideos(videosRaw)
+    },[videosRaw])
 
 
     const showVideo = (item, isOriginal = true) => {
@@ -55,48 +62,48 @@ const VideoList = ({ newVideoUploadedToggler }) => {
 
     const deleteVideoOnClick = (item) => {
         deleteVideo(item._id)
+        setDeletedVideoId(item._id)
+
     }
 
+    useEffect(()=>{
+        if(deleteVideoStatus === "success"){
+            const newVideos = videos.filter(vid=>vid._id != deletedVideoId)
+            setVideos(newVideos)
+        } else if (deleteVideoStatus === "error"){
+            Notifications.showToast({
+                icon: 'error',
+                text: deleteVideoError.request.response
+            })
+        }
 
-
+    },[deleteVideoStatus])
 
 
     useEffect(() => {
         refetchVideos()
-    }, [newVideoUploadedToggler])
-
-    useEffect(() => {
-        if (deleteVideoIsSuccess) {
-            refetchVideos()
-            deleteVideoReset()
-        }
-    }, [deleteVideoIsSuccess])
+    }, [newVideoUploadedToggle])
 
 
 
-
-
-    if (fetchVideosIsLoading || deleteVideoIsLoading) {
+    if (fetchVideosIsLoading) {
         return <div>loading</div>
     }
 
 
-    if (deleteVideoError) {
-        deleteVideoReset()
-        return <div>{deleteVideoError.response.data}</div>
-    }
+
 
     if (fetchVideosError) {
         fetchVideosReset()
         return <div>{fetchVideosError.response.data}</div>
     }
 
-
     if (videos) {
         return (
             <div class="flex flex-wrap overflow-hidden justify-center sm:justify-start ">
                 {videos.map(item => (
                     <VideoCard
+                        accessToken={accessToken}
                         item={item}
                         showVideo={showVideo}
                         // predictVideoOnClick={predictVideoOnClick}

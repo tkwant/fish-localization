@@ -7,26 +7,31 @@
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.1.0",
     "@snowpack/plugin-react-refresh": "^2.4.2",
-    "autoprefixer": "^10.2.5",
-    "postcss": "^8.2.9",
+    "autoprefixer": "^10.2.6",
+    "postcss": "^8.3.2",
     "snowpack": "^3.2.2"
   },
   "dependencies": {
-    "@chakra-ui/icons": "^1.0.10",
-    "@chakra-ui/react": "^1.4.2",
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.1.5",
+    "@lottiefiles/react-lottie-player": "^3.3.1",
+    "@react-hookz/web": "^3.1.0",
     "@snowpack/plugin-postcss": "^1.2.2",
     "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
     "framer-motion": "^4.1.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-icons": "^4.2.0",
     "react-player": "^2.9.0",
     "react-query": "^3.13.4",
     "react-router-dom": "^5.2.0",
     "react-use": "^17.2.1",
     "reactstrap": "^8.9.0",
-    "tailwindcss": "^2.0.4"
+    "recharts": "^2.0.9",
+    "screenfull": "^5.1.0",
+    "sweetalert2": "^10.14.0",
+    "tailwindcss": "^2.1.4",
+    "use-local-storage-state": "^10.0.0"
   }
 }
