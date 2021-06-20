@@ -12,8 +12,6 @@
     "snowpack": "^3.2.2"
   },
   "dependencies": {
-    "@chakra-ui/icons": "^1.0.10",
-    "@chakra-ui/react": "^1.4.2",
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.1.5",
     "@lottiefiles/react-lottie-player": "^3.3.1",

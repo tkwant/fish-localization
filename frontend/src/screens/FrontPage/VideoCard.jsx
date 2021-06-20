@@ -6,8 +6,6 @@ import usePredictProgress from '../../hooks/usePredictProgress'
 import usePredictVideo from '../../hooks/usePredictVideo'
 import usePredictCancel from '../../hooks/usePredictCancel'
 import Progressbar from '../../components/ProgressBar'
-// import { IconButton } from "@chakra-ui/react"
-import { CloseIcon } from '@chakra-ui/icons'
 import { useInterval } from 'react-use'
 import API from '../../API'
 import Button from '../../components/Button'
