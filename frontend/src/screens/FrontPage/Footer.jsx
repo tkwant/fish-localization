@@ -4,7 +4,7 @@ import Button from '../../components/Button'
 import useUploadVideo from '../../hooks/useUploadVideo'
 import ProgressBar from '../../components/ProgressBar'
 import useLogin from '../../hooks/useLogin'
-import {useLocalStorage} from 'react-use'
+import useAccessToken from '../../hooks/useAccessToken'
 import axios from 'axios'
 // import ProgressModal from './ProgressModal'
 var style = {
@@ -34,7 +34,9 @@ const Footer = ({setNewVideoUploadedToggler}) =>{
     const [isModalOpen, setIsModalOpen] = useState(false)
     const inputRef = useRef();
     const [uploadVideoState, uploadVideo, breakUpload] = useUploadVideo()
-    const [accessToken, setAccessToken, remove] = useLocalStorage('fish-loc-access-token', '')
+    // const [accessToken, setAccessToken, remove] = useLocalStorageValue('fish-loc-access-token', '')
+    // const [accessToken, setAccessToken] = useLocalStorageState('fish-loc-access-token', [])
+    const [accessToken, setAccessToken] = useAccessToken()
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const {
@@ -56,6 +58,8 @@ const Footer = ({setNewVideoUploadedToggler}) =>{
     useEffect(()=>{
         if(loginStatus == "success"){
             setAccessToken(loginData.accessToken)
+            // Reload --> disabled buttons gets enabled
+            setNewVideoUploadedToggler()
             setIsModalOpen(false)
 
         }

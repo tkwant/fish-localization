@@ -949,6 +949,15 @@
     "prop-types" "^15.7.2"
     "tslib" "^2.1.0"
 
+"@react-hookz/web@^3.1.0":
+  "integrity" "sha512-MAxIk6rrRN6Ni/uUEgkRlbchdNlmS4B7tzMms7ZgEhzEfLv7Cr+ELEU1nlsTyBRF9GptsIhuUbESnLtP6/tpaw=="
+  "resolved" "https://registry.npmjs.org/@react-hookz/web/-/web-3.1.0.tgz"
+  "version" "3.1.0"
+  dependencies:
+    "@types/js-cookie" "^2.2.6"
+    "@types/react" "^17.0.3"
+    "@types/react-dom" "^17.0.3"
+
 "@snowpack/plugin-dotenv@^2.1.0":
   "integrity" "sha512-NvwB+kQuxKheZLWrRvOgXB8i0cXhuIkljbgCn02fRGCIOigPIDk1jZrnn3x9skqqtul/XvW9dNulVi6Fa7CN6g=="
   "resolved" "https://registry.npmjs.org/@snowpack/plugin-dotenv/-/plugin-dotenv-2.1.0.tgz"
@@ -1025,7 +1034,14 @@
   "resolved" "https://registry.npmjs.org/@types/prop-types/-/prop-types-15.7.3.tgz"
   "version" "15.7.3"
 
-"@types/react@^17.0.0":
+"@types/react-dom@^17.0.3":
+  "integrity" "sha512-0ohAiJAx1DAUEcY9UopnfwCE9sSMDGnY/oXjWMax6g3RpzmTt2GMyMVAXcbn0mo8XAff0SbQJl2/SBU+hjSZ1A=="
+  "resolved" "https://registry.npmjs.org/@types/react-dom/-/react-dom-17.0.8.tgz"
+  "version" "17.0.8"
+  dependencies:
+    "@types/react" "*"
+
+"@types/react@*", "@types/react@^17.0.0", "@types/react@^17.0.3":
   "integrity" "sha512-wYOUxIgs2HZZ0ACNiIayItyluADNbONl7kt8lkLjVK8IitMH5QMyAh75Fwhmo37r1m7L2JaFj03sIfxBVDvRAg=="
   "resolved" "https://registry.npmjs.org/@types/react/-/react-17.0.3.tgz"
   "version" "17.0.3"
@@ -2478,7 +2494,7 @@
   dependencies:
     "@babel/runtime" "^7.12.13"
 
-"react-dom@^17.0.2":
+"react-dom@^16.8 || ^17", "react-dom@^17.0.2":
   "integrity" "sha512-s4h96KtLDUQlsENhMn1ar8t2bEa+q/YAtj8pPPdIjPDGBDIVNsrD9aXNWqspUe6AzKCIG0C1HZZLqLV7qpOBGA=="
   "resolved" "https://registry.npmjs.org/react-dom/-/react-dom-17.0.2.tgz"
   "version" "17.0.2"
@@ -2668,7 +2684,7 @@
     "ts-easing" "^0.2.0"
     "tslib" "^2.1.0"
 
-"react@^17.0.2":
+"react@^16.8 || ^17", "react@^17.0.2", "react@>=16.8.0":
   "integrity" "sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA=="
   "resolved" "https://registry.npmjs.org/react/-/react-17.0.2.tgz"
   "version" "17.0.2"
@@ -3058,6 +3074,11 @@
   "integrity" "sha512-gN3vgMISAgacF7sqsLPByqoePooY3n2emTH59Ur5d/M8eg4WTWu1xp8i8DHjohftIyEx0S08RiYxbffr4j8Peg=="
   "resolved" "https://registry.npmjs.org/use-callback-ref/-/use-callback-ref-1.2.5.tgz"
   "version" "1.2.5"
+
+"use-local-storage-state@^10.0.0":
+  "integrity" "sha512-NCab0oYOMZA8oT9y4OE7tMT6JS21SiyPsTjZdapnyvHe7bVFlIMSp6LaiuHBdS1OvduuLtG+pX/duFIBkd0PCA=="
+  "resolved" "https://registry.npmjs.org/use-local-storage-state/-/use-local-storage-state-10.0.0.tgz"
+  "version" "10.0.0"
 
 "use-sidecar@^1.0.1":
   "integrity" "sha512-k9jnrjYNwN6xYLj1iaGhonDghfvmeTmYjAiGvOr7clwKfPjMXJf4/HOr7oT5tJwYafgp2tG2l3eZEOfoELiMcA=="

@@ -3,6 +3,8 @@ import { useHistory } from 'react-router-dom'
 import useVideos from '../../hooks/useVideos'
 import useDeleteVideo from '../../hooks/useDeleteVideo'
 import VideoCard from './VideoCard'
+import useAccessToken from '../../hooks/useAccessToken'
+
 const DUMMY_CARDS = [
     {
         thumbnail: 'https://i.imgur.com/lhJIz7A.jpg',
@@ -26,8 +28,11 @@ const DUMMY_CARDS = [
 ]
 
 
-const VideoList = ({ newVideoUploadedToggler }) => {
+const VideoList = ({ newVideoUploadedToggle }) => {
     const history = useHistory()
+    // const [accessToken, setAccessToken, remove] = useLocalStorage('fish-loc-access-token', '')
+    // const [accessToken, setAccessToken] = useLocalStorageState('fish-loc-access-token', [])
+    const [accessToken, setAccessToken] = useAccessToken()
     const
         {
             isLoading: fetchVideosIsLoading,
@@ -65,8 +70,10 @@ const VideoList = ({ newVideoUploadedToggler }) => {
 
 
     useEffect(() => {
+        console.log("HALLO")
+        console.log(accessToken)
         refetchVideos()
-    }, [newVideoUploadedToggler])
+    }, [newVideoUploadedToggle])
 
 
 
@@ -90,6 +97,7 @@ const VideoList = ({ newVideoUploadedToggler }) => {
             <div class="flex flex-wrap overflow-hidden justify-center sm:justify-start ">
                 {videos.map(item => (
                     <VideoCard
+                        accessToken={accessToken}
                         item={item}
                         showVideo={showVideo}
                         // predictVideoOnClick={predictVideoOnClick}

@@ -9,14 +9,12 @@ import { CloseIcon } from '@chakra-ui/icons'
 import { useInterval } from 'react-use'
 import API from '../../API'
 import Button from '../../components/Button'
-import {useLocalStorage} from 'react-use'
 import showToast from '../../components/Toast'
 
 
-const VideoCard = ({ item, showVideo, deleteVideoOnClick }) => {
+const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
     const [progress, setProgress] = useState(item.predict_progress)
     const [fetchProgressTime, setFetchProgressTime] = useState(null)
-    const [accessToken, setAccessToken, remove] = useLocalStorage('fish-loc-access-token', '')
 
     const
         {
