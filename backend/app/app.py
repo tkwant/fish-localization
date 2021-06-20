@@ -1,14 +1,10 @@
-from flask import Flask, request, jsonify, make_response, Response
+from flask import Flask, request, jsonify, make_response
 import pymongo
-from pymongo import ReturnDocument
 from flask_cors import CORS
 from bson.objectid import ObjectId
-from werkzeug.utils import secure_filename
 from datetime import datetime
 from flask_jwt_extended import create_access_token, jwt_required, JWTManager
 
-# from concurrent.futures import ThreadPoolExecutor, FIRST_COMPLETED
-# from concurrent.futures import thread
 from threading import Thread
 import threading
 import queue
@@ -22,16 +18,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
-
 q = queue.Queue()
-
-# executor = ThreadPoolExecutor(max_workers=1)
-
 app = Flask(__name__)
-
-# Setup the Flask-JWT-Extended extension
-app.config["JWT_SECRET_KEY"] =  os.getenv('JWT_SECRET')  # Change this!
+app.config["JWT_SECRET_KEY"] =  os.getenv('JWT_SECRET')  
 jwt = JWTManager(app)
 
 
@@ -46,15 +35,6 @@ myclient = pymongo.MongoClient("mongodb://mongodb:27017/")
 mydb = myclient["fish_localization"]
 videos = mydb["videos"]
 fish_counts = mydb["fish_counts"]
-# app_path = 'backend/app/'
-
-
-# videos.update_many(
-#     {"predict_progress": {"$lt": 1}}, 
-#     {
-#         '$set': {
-#             'predict_progress': 0
-#         }})
 
 ORIGINAL_VIDEOS_DIR_NAME = 'original_videos'
 PREDICT_VIDEOS_DIR_NAME = 'predicted_videos'
@@ -89,7 +69,6 @@ def delete_video(videoId):
     res = videos.find_one_and_delete({'_id': videoId})
     if res:
         os.remove(res['original_video_path'])
-        print("removed: " + res['original_video_path'])
         return make_response(jsonify({}), 204)
     else:
         return make_response("Video Id not found in database", 400)
@@ -123,10 +102,8 @@ def onFishCounted(item_id, fish_count_arr):
     onProgressUpload(item_id, 1)
 
 def checkUploadCanceled(item_id):
-    # if not q.empty():
     try: 
         q.get(False)
-        job_is_running = False
         videos.update_one({
         '_id': item_id
     }, {
@@ -134,15 +111,11 @@ def checkUploadCanceled(item_id):
             'predict_progress': 0
         }
     }, upsert=False)
-        # executor.shutdown()
         return True
     except queue.Empty:
         return False
-    return False
 
 def onProgressUpload(item_id, progress):
-    if progress == 1:
-        job_is_running = False
     videos.update_one({
         '_id': item_id
     }, {
@@ -150,7 +123,6 @@ def onProgressUpload(item_id, progress):
             'predict_progress': progress
         }
     }, upsert=False)
-    print(f"progress ${progress}")
 
 @app.route('/predict_progress/<item_id>', methods=["GET"])
 def predict_progress(item_id):
@@ -162,19 +134,10 @@ def predict_progress(item_id):
 @app.route('/predict', methods=["POST"])
 @jwt_required()
 def predict_video():
-
-    # item = videos.find_one_and_update({'_id': item_id}, {'$set': {'predicted_video_path': p_videos_dir}}, return_document=ReturnDocument.AFTER)
     try:
         item_id = request.json['id']
         item = videos.find_one({'_id': item_id})
 
-    #     videos.update_one({
-    #     '_id': item_id
-    # }, {
-    #     '$set': {
-    #         'predicted_video_path': predicted_video_path
-    #     }
-    # }, upsert=False)
         job_is_running = False
         for thread in threading.enumerate(): 
             if thread.name == 'fish_loc_predict':
@@ -195,7 +158,6 @@ def predict_video():
             raise Exception('Currenty only one thread can be used for Prediction')
     except Exception as e:
         return make_response(str(e), 400)
-    # print(future.result())
     return make_response(jsonify({}), 204)
     
 @app.route('/predict_cancel', methods=["POST"])
