@@ -5,19 +5,22 @@ from flask_cors import CORS
 from bson.objectid import ObjectId
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from flask_jwt_extended import create_access_token, jwt_required, JWTManager
+
 # from concurrent.futures import ThreadPoolExecutor, FIRST_COMPLETED
 # from concurrent.futures import thread
 from threading import Thread
 import threading
-import cv2
 import queue
 
 from DeepFish.predict import trainval
 import os
 import time
 import pandas as pd
+import cv2
+from dotenv import load_dotenv
 
-
+load_dotenv()
 
 
 
@@ -26,6 +29,17 @@ q = queue.Queue()
 # executor = ThreadPoolExecutor(max_workers=1)
 
 app = Flask(__name__)
+
+# Setup the Flask-JWT-Extended extension
+app.config["JWT_SECRET_KEY"] =  os.getenv('JWT_SECRET')  # Change this!
+jwt = JWTManager(app)
+
+
+@jwt.unauthorized_loader
+def my_invalid_token_callback(expired_token):
+    return "Please Login", 401
+
+
 CORS(app)
 
 myclient = pymongo.MongoClient("mongodb://mongodb:27017/")
@@ -35,12 +49,12 @@ fish_counts = mydb["fish_counts"]
 # app_path = 'backend/app/'
 
 
-videos.update_many(
-    {"predict_progress": {"$lt": 1}}, 
-    {
-        '$set': {
-            'predict_progress': 0
-        }})
+# videos.update_many(
+#     {"predict_progress": {"$lt": 1}}, 
+#     {
+#         '$set': {
+#             'predict_progress': 0
+#         }})
 
 ORIGINAL_VIDEOS_DIR_NAME = 'original_videos'
 PREDICT_VIDEOS_DIR_NAME = 'predicted_videos'
@@ -61,12 +75,7 @@ fish_counts_csv_dir = o_videos_dir.replace(ORIGINAL_VIDEOS_DIR_NAME, FISH_COUNTS
 if not os.path.exists(fish_counts_csv_dir):
     os.makedirs(fish_counts_csv_dir)
 
-@app.route('/', methods=['GET'])
-def get():
-    # test = "Hello Workd"
 
-    # x = videos.insert_one(mydict)
-    return 'Hello world'
 
 
 @app.route('/items', methods=['GET'])
@@ -75,6 +84,7 @@ def get_videos():
     return jsonify(items)
 
 @app.route('/delete/<videoId>', methods=['DELETE'])
+@jwt_required()
 def delete_video(videoId):
     res = videos.find_one_and_delete({'_id': videoId})
     if res:
@@ -85,10 +95,20 @@ def delete_video(videoId):
         return make_response("Video Id not found in database", 400)
 
 
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.json.get("username", None)
+    password = request.json.get("password", None)
+    if username == os.getenv('USERNAME') and password == os.getenv('PASSWORD'):
+        access_token = create_access_token(identity=username, expires_delta=False)
+        return jsonify(accessToken=access_token)
+    return "Bad username or password", 401
+
 @app.route('/fish_counts/<item_id>', methods=['GET'])
 def get_fish_counts(item_id):
-    item = fish_counts.find_one({"_id": item_id})
-    return make_response(jsonify({"fish_counts": item['fish_counts']}), 201) 
+    fish_counts_item = fish_counts.find_one({"_id": item_id})
+    video_item = videos.find_one({"_id": item_id})
+    return make_response(jsonify({"fish_counts": fish_counts_item['fish_counts'], "fps": video_item['fps']}), 201) 
 
 
 def onFishCounted(item_id, fish_count_arr):
@@ -140,6 +160,7 @@ def predict_progress(item_id):
 
 
 @app.route('/predict', methods=["POST"])
+@jwt_required()
 def predict_video():
 
     # item = videos.find_one_and_update({'_id': item_id}, {'$set': {'predicted_video_path': p_videos_dir}}, return_document=ReturnDocument.AFTER)
@@ -178,11 +199,13 @@ def predict_video():
     return make_response(jsonify({}), 204)
     
 @app.route('/predict_cancel', methods=["POST"])
+@jwt_required()
 def cancel_prediciting():
     q.put(True)
     return make_response(jsonify({}), 204)
 
 @app.route('/upload', methods=["POST"])
+@jwt_required()
 def upload_video():
     uploaded_file = request.files['video']
     if uploaded_file.filename != '':
@@ -193,6 +216,7 @@ def upload_video():
         thumbnail_path = original_video_path.replace(ORIGINAL_VIDEOS_DIR_NAME, THUMBNAIL_DIR_NAME)
         thumbnail_path = thumbnail_path.replace('mp4', 'png')
         cap = cv2.VideoCapture(original_video_path)
+        fps = cap.get(cv2.CAP_PROP_FPS)
         ret, thumbnail = cap.read()
         cv2.imwrite(thumbnail_path, thumbnail)
         predicted_video_path = original_video_path.replace(ORIGINAL_VIDEOS_DIR_NAME, PREDICT_VIDEOS_DIR_NAME)
@@ -207,7 +231,8 @@ def upload_video():
             "fish_counts_csv_path": csv_save_dir,
             "predict_progress": 0,
             "counts": None,
-            "thumbnail_path": thumbnail_path
+            "thumbnail_path": thumbnail_path,
+            "fps": fps
         })
         return "success"
     return 'bad request!', 400

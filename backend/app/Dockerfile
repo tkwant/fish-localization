@@ -43,6 +43,8 @@ RUN pip install --no-cache-dir codecov
 RUN pip install --no-cache-dir flask-cors
 RUN pip install --no-cache-dir numba
 RUN pip install --no-cache-dir git+https://github.com/ElementAI/LCFCN
+RUN pip install --no-cache-dir python-dotenv
+RUN pip install --no-cache-dir flask-jwt-extended
 
 # RUN mkdir -p /workspace/backend/app
 WORKDIR /workspace
