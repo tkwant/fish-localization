@@ -14,7 +14,7 @@ services:
       - ./app:/workspace
       # - .:/user/src
     ports:
-      - 80:9999
+      - 443:9999
     environment:
       - "PYTHONUNBUFFERED=1"
     links:
