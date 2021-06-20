@@ -148,7 +148,7 @@ const VideoCard = ({ item, showVideo, deleteVideoOnClick, accessToken }) => {
                     />
                 </div>
                 <div className="mt-1 mr-2">
-                <IconButton onClick={predictCancelOnClick}>
+                <IconButton className="px-2 h-8" onClick={predictCancelOnClick}>
                     <FaTimes/>
                 </IconButton>
                 </div>

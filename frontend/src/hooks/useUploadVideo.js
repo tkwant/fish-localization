@@ -44,7 +44,7 @@ const useUploadVideo = () => {
             })
         } catch (error) {
             setState({ 
-                error, 
+                error: error.request.response, 
                 isSuccess: false
             })
         }

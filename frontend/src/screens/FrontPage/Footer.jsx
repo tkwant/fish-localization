@@ -6,6 +6,11 @@ import ProgressBar from '../../components/ProgressBar'
 import useLogin from '../../hooks/useLogin'
 import useAccessToken from '../../hooks/useAccessToken'
 import axios from 'axios'
+import Notifications from '../../components/Notifications'
+import Input from '../../components/Input'
+import {useKey} from 'react-use'
+import IconButton from '../../components/IconButton'
+import {FaInfo, FaGithub} from 'react-icons/fa'
 // import ProgressModal from './ProgressModal'
 var style = {
     backgroundColor: "#F8F8F8",
@@ -30,8 +35,49 @@ var style = {
 //     )
 // }
 
+
+const Info = ({isInfoModalOpen, setIsInfoModalOpen})=>{
+    return(
+        <div className="float-right h-full">
+            <Modal
+                isOpen={isInfoModalOpen}
+                onClose={
+                    ()=> setIsInfoModalOpen(false)
+                }
+                title="Info"
+            >
+                <div>
+                <p className="mb-4">
+                    This webapplication is developed to automatically count and localize fishes in 
+                    underwater video recordings using AI. It is used by croatian biologists to understand the influence of human and natural effects on marine life.
+                    The webapplication including the AI-Evaluation are hosted at Hochschule Fulda.
+                 </p>                    
+                <IconButton
+                    onClick={()=>window.location.href = "https://github.com/tkwant/fish-localization"}
+                >
+                    <FaGithub size={16} className="mr-2"/> Source Code
+                </IconButton>
+                <p className="mt-4 text-xs">
+                    Improvments or Bugs?  t.kwant1@gmail.com </p>
+                <p className="text-xs">Special thanks to Jonas Jäger and Prof. Dr. Viviane Wolff for maintaining this project</p>
+                
+                </div>
+            </Modal>
+            
+                <IconButton
+                    onClick={()=>setIsInfoModalOpen(true)}
+                    className="mr-2 px-2 my-1"
+                >
+                    <FaInfo/> 
+             </IconButton>
+        </div>
+    )
+}
+
+
 const Footer = ({setNewVideoUploadedToggler}) =>{
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false)
     const inputRef = useRef();
     const [uploadVideoState, uploadVideo, breakUpload] = useUploadVideo()
     // const [accessToken, setAccessToken, remove] = useLocalStorageValue('fish-loc-access-token', '')
@@ -54,6 +100,16 @@ const Footer = ({setNewVideoUploadedToggler}) =>{
             uploadVideo(file)
         }
     }
+    useKey('Enter', ()=>{
+        if(isModalOpen && username && password){
+            login(
+                {username, 
+                password}
+            )
+        }
+
+    },{}, [username, password]);
+
 
     useEffect(()=>{
         if(loginStatus == "success"){
@@ -75,6 +131,12 @@ const Footer = ({setNewVideoUploadedToggler}) =>{
             if (uploadVideoState.isSuccess) {
                 setNewVideoUploadedToggler()
             }
+            if(uploadVideoState.error ){
+                Notifications.showToast({
+                    icon: 'error',
+                    text: uploadVideoState.error
+                })
+            }
             setIsModalOpen(false)
             inputRef.current.value = ""
         }}, [uploadVideoState])
@@ -83,6 +145,9 @@ const Footer = ({setNewVideoUploadedToggler}) =>{
     const selectVideoFaker = () => {
         inputRef.current.click()
     }
+
+
+
     
     if(accessToken){
         return (
@@ -111,7 +176,10 @@ const Footer = ({setNewVideoUploadedToggler}) =>{
                     >
                         Upload Video
                     </Button>
-
+                    <Info
+                         isInfoModalOpen={isInfoModalOpen}
+                         setIsInfoModalOpen={setIsModalOpen}                   
+                    />
                 </div>
             </div>
         )
@@ -133,28 +201,28 @@ const Footer = ({setNewVideoUploadedToggler}) =>{
                     title="Login"
                 >
                     <div>
-                        Username: <input onInput={e=>setUsername(e.target.value)} />
-                        Password: <input onInput={e=>setPassword(e.target.value)} />
+                        Username <Input onInput={e=>setUsername(e.target.value)} />
+                        Password <Input type="password" onInput={e=>setPassword(e.target.value)} />
                         {loginError && 
-                            <p>{loginError.request.response}</p>
+                            <p className="text-red-500" >{loginError.request.response}</p>
                         }
                     </div>
                         
                 </Modal>
             <div style={style}>
-            <Button 
-                                    className="w-40"
-
+                    <Button 
+                        className="w-40"
                         onClick={()=>{
                             setIsModalOpen(true)
-                            // login({
-                            //     username: "admin",
-                            //     password: "barscht123"
-                            // })
+
                         }}
                     >
                         Login
                     </Button>
+                    <Info
+                        isInfoModalOpen={isInfoModalOpen}
+                        setIsInfoModalOpen={setIsModalOpen}
+                    />
             </div>
         </div>
     )

@@ -3,7 +3,7 @@ import { Player, Controls } from '@lottiefiles/react-lottie-player';
 
 const Title = () => {
     return (
-        <div className="bg-gray-200  text-3xl p-2  w-full text-center flex flex-row justify-center">
+        <div className="bg-gray-200  text-3xl p-2  w-full flex justify-center">
             <div className="font-semibold" >Fish Localization            </div>
 
             <div>
@@ -12,7 +12,7 @@ const Title = () => {
             autoplay
             loop
             src="https://assets4.lottiefiles.com/packages/lf20_ppkhg6vk.json"
-            style={{ height: '40px', width: '140px' }}
+            style={{ height: '40px', width: '80px' }}
             >
             </Player>
             </div>
