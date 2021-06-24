@@ -2,6 +2,8 @@
 
 This webapplication is developed to automatically count and localize fishes in underwater video recordings.
 
+[Demo](https://www.bioex.et.hs-fulda.de)
+
 1. Follow instructions in backend/readme.md
 2. Follow instructions in frontend/readme.md
 
