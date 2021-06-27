@@ -1,4 +1,5 @@
 .snowpack
 build
 node_modules
+copy_to_server.sh
 .env
