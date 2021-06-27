@@ -1,9 +1,40 @@
 version: '3.3'
 
 services:
+  proxy:
+    image: jwilder/nginx-proxy:alpine
+    container_name: proxy
+    ports:
+    ### automatically redirects http to https
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    ### required for Let's Encrypt certificates
+      - nginx_certs:/etc/nginx/certs:ro
+      - nginx_vhosts:/etc/nginx/vhost.d
+      - nginx_html:/usr/share/nginx/html
+      - ./volume/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+   #   - ./volume/nginx/access.log:/var/log/nginx/access.log
+    restart: always
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: letsencrypt
+    environment:
+    ### ToDo: Change to your e-mail address
+      - DEFAULT_EMAIL=${EMAIL}
+      - NGINX_PROXY_CONTAINER=proxy
+    volumes_from:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nginx_certs:/etc/nginx/certs:rw
+    restart: always
+
   nvidia-flask:
+    container_name: nvidia-flask
     build: ./app
-    # network_mode: host
     deploy:
       resources:
         reservations:
@@ -12,24 +43,29 @@ services:
               - gpu
     volumes:
       - ./app:/workspace
-      # - .:/user/src
-    ports:
-      - 443:9999
+    expose:
+      - "9999"
     environment:
       - "PYTHONUNBUFFERED=1"
+      - VIRTUAL_HOST=${DOMAIN}
+      - LETSENCRYPT_HOST=${DOMAIN}
+
     links:
         - mongodb
     depends_on:
         - mongodb
 
-
   mongodb:
     image: mongo:latest
-    # environment:
-      # MONGO_INITDB_ROOT_USERNAME: deep_fish
-      # MONGO_INITDB_ROOT_PASSWORD: barscht123
+    container_name: mongodb
     ports:
         - 127.0.0.1:27017:27017
     volumes:
       - ../../fish-localization-data/mongo_data:/data/db
     command: --quiet
+volumes:
+      #### NGINX reverse proxy container volumes
+  nginx_certs:
+  nginx_vhosts:
+  nginx_html:
+    
