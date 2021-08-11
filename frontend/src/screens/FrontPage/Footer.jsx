@@ -58,8 +58,8 @@ const Info = ({ isInfoModalOpen, setIsInfoModalOpen }) => {
                         <FaGithub size={16} className="mr-2" /> Source Code
                     </IconButton>
                     <p className="mt-4 text-xs">
-                        Contact:  t.kwant1@gmail.com </p>
-                    <p className="text-xs">Special thanks to Jonas Jäger and Prof. Dr. Viviane Wolff for maintaining this project</p>
+                        Contact:  tkwant12@gmail.com </p>
+                    <p className="text-xs">Special thanks to Prof. Dr. Viviane Wolff and Jonas Jäger for maintaining this project</p>
 
                 </div>
             </Modal>
