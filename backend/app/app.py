@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, make_response
 import pymongo
-from flask_cors import CORS
+from flask_cors import CORS, extension
 from bson.objectid import ObjectId
 from datetime import datetime
 from flask_jwt_extended import create_access_token, jwt_required, JWTManager
@@ -14,6 +14,7 @@ import os
 import time
 import pandas as pd
 import cv2
+import numpy as np
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -40,7 +41,7 @@ ORIGINAL_VIDEOS_DIR_NAME = 'original_videos'
 PREDICT_VIDEOS_DIR_NAME = 'predicted_videos'
 THUMBNAIL_DIR_NAME = 'thumbnails'
 FISH_COUNTS_CSV_DIR_NAME = 'fish_counts_csv'
-
+FISHCOUNTS_DATAPOINTS = 500
 o_videos_dir = f"static/{ORIGINAL_VIDEOS_DIR_NAME}/"
 if not os.path.exists(o_videos_dir):
     os.makedirs(o_videos_dir)
@@ -95,11 +96,18 @@ def onFishCounted(item_id, fish_count_arr):
     df.index.name = "frame"
     item = videos.find_one({'_id': item_id})
     df.to_csv(item['fish_counts_csv_path'])
+    #reduce size of datapoint
+    if len(fish_count_arr) > FISHCOUNTS_DATAPOINTS:
+        block_size = int(len(fish_count_arr) / FISHCOUNTS_DATAPOINTS)
+        mod = len(fish_count_arr) % block_size
+        fish_count_arr = fish_count_arr[:(len(fish_count_arr) - mod)]
+        fish_count_arr = np.mean(fish_count_arr.reshape(-1, block_size), axis=1)
     fish_counts.insert_one({
             "_id": item_id,
             "fish_counts": fish_count_arr.tolist()
     })
     onProgressUpload(item_id, 1)
+
 
 def checkUploadCanceled(item_id):
     try: 
@@ -114,6 +122,7 @@ def checkUploadCanceled(item_id):
         return True
     except queue.Empty:
         return False
+
 
 def onProgressUpload(item_id, progress):
     videos.update_one({
@@ -173,16 +182,17 @@ def upload_video():
     if uploaded_file.filename != '':
         obj_id = str(ObjectId())
         # original_video_path = o_videos_dir + obj_id + "." + uploaded_file.filename.split('.')[-1]
-        original_video_path = os.path.join(o_videos_dir, obj_id + "." + uploaded_file.filename.split('.')[-1])
+        ext = uploaded_file.filename.split('.')[-1]
+        original_video_path = os.path.join(o_videos_dir, obj_id + "." + ext)
         uploaded_file.save(original_video_path)
         thumbnail_path = original_video_path.replace(ORIGINAL_VIDEOS_DIR_NAME, THUMBNAIL_DIR_NAME)
-        thumbnail_path = thumbnail_path.replace('mp4', 'png')
+        thumbnail_path = thumbnail_path.replace(ext, 'png')
         cap = cv2.VideoCapture(original_video_path)
         fps = cap.get(cv2.CAP_PROP_FPS)
         ret, thumbnail = cap.read()
         cv2.imwrite(thumbnail_path, thumbnail)
         predicted_video_path = original_video_path.replace(ORIGINAL_VIDEOS_DIR_NAME, PREDICT_VIDEOS_DIR_NAME)
-        predicted_video_path = predicted_video_path.replace('mp4', 'webm')
+        predicted_video_path = predicted_video_path.replace(ext, 'webm')
         csv_save_dir = os.path.join(fish_counts_csv_dir, f"{obj_id}.csv")
         videos.insert_one({
             "_id": obj_id,
@@ -202,5 +212,5 @@ def upload_video():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=9999, debug=True)
+    app.run(host='0.0.0.0', port=9999, debug=False)
 

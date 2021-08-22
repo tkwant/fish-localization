@@ -29,6 +29,7 @@ services:
       - proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - acme:/etc/acme.sh
       - nginx_certs:/etc/nginx/certs:rw
     restart: always
 
@@ -68,4 +69,5 @@ volumes:
   nginx_certs:
   nginx_vhosts:
   nginx_html:
+  acme:
     
