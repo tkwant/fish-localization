@@ -37,7 +37,7 @@ const VideoList = ({ newVideoUploadedToggle }) => {
         {
             isLoading: fetchVideosIsLoading,
             error: fetchVideosError,
-            reset: fetchVideosReset,
+            // reset: fetchVideosReset,
             data: videosRaw,
             refetch: refetchVideos
         } = useVideos()
@@ -94,8 +94,8 @@ const VideoList = ({ newVideoUploadedToggle }) => {
 
 
     if (fetchVideosError) {
-        fetchVideosReset()
-        return <div>{fetchVideosError.response.data}</div>
+        // fetchVideosReset()
+        return <div>Network Error</div>
     }
 
     if (videos) {

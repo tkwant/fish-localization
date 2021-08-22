@@ -15,6 +15,8 @@ import Title from './Title'
 
 const queryClient = new QueryClient()
 const App = () => {
+    console.log("2222")
+    console.log(document.body.style.position)
 
     return (
         <QueryClientProvider client={queryClient}>

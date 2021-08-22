@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import { useHistory } from 'react-router-dom'
 import ReactPlayer from 'react-player'
 import API from '../../API'
@@ -46,8 +46,16 @@ const FishCountsVis = ({ itemId, isOriginal, width }) => {
 
 const VideoPage = () => {
     const {width, height} = useWindowSize()
-    // const height = 1080
     const history = useHistory()
+
+    // const height = 1080
+    useEffect(()=>{
+        console.log(document.body.style.position)
+        document.body.style.position = "fixed"
+        return () => {
+            document.body.style.position = ""
+        }
+    },[])
     if (!history.location.state) {
         return <div>No data</div>
     } else {
@@ -58,7 +66,7 @@ const VideoPage = () => {
         <ReactPlayer
             width="auto"
             width={width}
-            height={height * 0.75}
+            height={isOriginal ?height*0.9:  height * (width < 700? 0.65: 0.75)}
             
             controls
             url={videoUrl} />
