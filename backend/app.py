@@ -32,7 +32,7 @@ def my_invalid_token_callback(expired_token):
 
 CORS(app)
 
-myclient = pymongo.MongoClient("mongodb://mongodb:27017/")
+myclient = pymongo.MongoClient("mongodb://mongodb:27030/")
 mydb = myclient["fish_localization"]
 videos = mydb["videos"]
 fish_counts = mydb["fish_counts"]

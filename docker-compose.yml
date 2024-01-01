@@ -1,0 +1,47 @@
+version: '3.3'
+
+services:
+  nvidia-flask:
+    container_name: nvidia-flask
+    build: ./backend
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities:
+              - gpu
+    expose:
+      - "9999"
+    volumes:
+      - ./backend:/workspace
+    environment:
+      - VIRTUAL_HOST=api.fish-loc.tkwant.de
+      - LETSENCRYPT_HOST=api.fish-loc.tkwant.de
+      - LETSENCRYPT_EMAIL=YOUREMAIL
+      - PYTHONUNBUFFERED=1
+    networks:
+      - fish-backend
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    volumes:
+      - ./db-data:/data/db
+    networks:
+      - fish-backend
+  nginx:
+    restart: always
+    image: nginx:1.21.0
+    container_name: nginx
+    volumes:
+      - ./frontend/build:/usr/share/nginx/html:ro
+    environment:
+      - VIRTUAL_HOST=fish-loc.tkwant.de
+      - LETSENCRYPT_HOST=fish-loc.tkwant.de
+      - LETSENCRYPT_EMAIL=YOUREMAIL
+
+networks:
+  fish-backend:
+    name: fish-backend
+  proxy:
+    external: true
+
